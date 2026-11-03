@@ -1,0 +1,9 @@
+{
+  "name": "komfirmed",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Tells riders when the weather gives them the best shot at a Strava KOM/QOM.",
+  "scripts": { "dev": "node server.js", "start": "node server.js" },
+  "engines": { "node": ">=18" }
+}
