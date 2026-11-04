@@ -45,6 +45,7 @@ export default async function handler(req, res) {
     access_token: data.access_token,
     refresh_token: data.refresh_token,
     expires_at: data.expires_at,
+    scope: data.scope,
     athlete: data.athlete ? { id: data.athlete.id, firstname: data.athlete.firstname, lastname: data.athlete.lastname, sex: data.athlete.sex, weight: data.athlete.weight } : undefined,
   });
 }
