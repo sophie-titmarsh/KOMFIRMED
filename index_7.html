@@ -1,0 +1,1444 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>KOMFIRMED</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#D9530A">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Montserrat:wght@400;500;600;700&family=Urbanist:wght@700;800&display=swap">
+<style>
+/* Layout: segment rail left, the selected segment's call (now, best windows, 7-day grid) right; a dark safety band with a gold crown closes the page. */
+:root {
+  /* Brand: Ink #092214, Signal #A7F000, Moss #517A10, Pure White #FFFFFF, Mist #A7A7A7.
+     Go / Maybe / Not now and the hour grid keep their own green, orange and red. */
+  --bg: #F2F5EE; --surface: #FFFFFF; --sunk: #F3F6EF; --ink: #092214; --muted: #56655A; --line: #DCE3D4; --mist: #A7A7A7;
+  --accent: #517A10; --link: #3F620A; --title: #092214; --signal: #A7F000; --signal-ink: #092214;
+  --head-bg: #092214; --head-ink: #FFFFFF; --head-muted: #A7A7A7; --logo-kom: #A7F000; --logo-rest: #FFFFFF;
+  --go: #1E8A4C; --go-ink: #FFFFFF; --go-soft: #DDF2E5; --go-soft-ink: #17703D;
+  --maybe: #E8710A; --maybe-ink: #FFFFFF; --maybe-soft: #FDE7D2; --maybe-soft-ink: #A84F00;
+  --no: #C8302A; --no-ink: #FFFFFF; --no-soft: #F8DEDA; --no-soft-ink: #A3281C;
+  --night: #DCE1E8; --night-ink: #8A94A3; --night-bg: #4A5361; --night-go: #8FE3B0; --night-maybe: #FFC48A; --night-no: #FFA49B;
+  --map-bg: #F3F6EF; --map-tail: #1E8A4C; --map-head: #C8302A; --map-flat: #A7A7A7; --map-ink: #092214; --map-wind: #517A10;
+  --band-bg: #092214; --band-ink: #FFFFFF; --crown: #A7F000;
+  --strava: #FC4C02;
+  --display: "Nourd", "Urbanist", "Montserrat", system-ui, sans-serif;
+  --sub: "Montserrat", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --body: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #092214; --surface: #0F2E1B; --sunk: #0B2617; --ink: #FFFFFF; --muted: #A7A7A7; --line: #23492F; --mist: #7E8A80;
+  --accent: #A7F000; --link: #A7F000; --title: #FFFFFF; --signal: #A7F000; --signal-ink: #092214;
+  --head-bg: #061A0E; --head-ink: #FFFFFF; --head-muted: #A7A7A7; --logo-kom: #A7F000; --logo-rest: #FFFFFF;
+  --go: #2E9E5E; --go-ink: #FFFFFF; --go-soft: #13301F; --go-soft-ink: #5AD394;
+  --maybe: #EE7F1A; --maybe-ink: #10151C; --maybe-soft: #3A2410; --maybe-soft-ink: #F5A55A;
+  --no: #D9443A; --no-ink: #FFFFFF; --no-soft: #3A1B18; --no-soft-ink: #F08A80;
+  --night: #1C232C; --night-ink: #4A5562; --night-bg: #06080B; --night-go: #7FE0A6; --night-maybe: #FFB872; --night-no: #FF968C;
+  --map-bg: #0B2617; --map-tail: #3DC27B; --map-head: #EE6B5D; --map-flat: #7E8A80; --map-ink: #FFFFFF; --map-wind: #A7F000;
+  --band-bg: #061A0E; --band-ink: #FFFFFF;
+  color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #092214; --surface: #0F2E1B; --sunk: #0B2617; --ink: #FFFFFF; --muted: #A7A7A7; --line: #23492F; --mist: #7E8A80;
+  --accent: #A7F000; --link: #A7F000; --title: #FFFFFF; --signal: #A7F000; --signal-ink: #092214;
+  --head-bg: #061A0E; --head-ink: #FFFFFF; --head-muted: #A7A7A7; --logo-kom: #A7F000; --logo-rest: #FFFFFF;
+  --go: #2E9E5E; --go-ink: #FFFFFF; --go-soft: #13301F; --go-soft-ink: #5AD394;
+  --maybe: #EE7F1A; --maybe-ink: #10151C; --maybe-soft: #3A2410; --maybe-soft-ink: #F5A55A;
+  --no: #D9443A; --no-ink: #FFFFFF; --no-soft: #3A1B18; --no-soft-ink: #F08A80;
+  --night: #1C232C; --night-ink: #4A5562; --night-bg: #06080B; --night-go: #7FE0A6; --night-maybe: #FFB872; --night-no: #FF968C;
+  --map-bg: #0B2617; --map-tail: #3DC27B; --map-head: #EE6B5D; --map-flat: #7E8A80; --map-ink: #FFFFFF; --map-wind: #A7F000;
+  --band-bg: #061A0E; --band-ink: #FFFFFF;
+  color-scheme: dark }
+@font-face { font-family: "Nourd"; font-weight: 700; font-style: normal; font-display: swap;
+  src: local("Nourd Bold"), local("Nourd-Bold"), url("/fonts/Nourd-Bold.woff2") format("woff2"), url("/fonts/Nourd-Bold.otf") format("opentype"); }
+
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15.5px; line-height: 1.55; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-block: 20px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+button, input, select { font: inherit; color: inherit }
+button { cursor: pointer }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums }
+.label { font-family: var(--display); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 600 }
+a { color: var(--link) }
+
+header.top { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; justify-content: space-between; margin-bottom: 18px }
+.brand { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap }
+.brand h1 { font-family: var(--display); font-weight: 600; font-size: 42px; line-height: 1; margin: 0; letter-spacing: -.015em }
+.brand h1 { color: var(--logo-rest) }
+.brand h1 em { font-style: normal; color: var(--logo-kom) }
+.brand p { margin: 0; color: var(--muted); font-size: 14px }
+.btn { border: 1px solid var(--line); background: var(--surface); border-radius: 6px; padding: 8px 14px; font-weight: 500 }
+.btn:hover { border-color: var(--muted) }
+.btn.primary { background: var(--strava); border-color: var(--strava); color: #fff }
+.btn.primary:hover { filter: brightness(1.06) }
+.btn.small { padding: 4px 10px; font-size: 13px }
+.status { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 14px; color: var(--muted) }
+
+.banner { border: 1px dashed var(--line); background: var(--surface); border-radius: 8px; padding: 10px 14px; font-size: 13.5px; color: var(--muted); margin-bottom: 16px }
+.banner strong { color: var(--ink) }
+.error { border-color: var(--no); color: var(--no) }
+
+.layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 20px; align-items: start }
+@media (max-width: 860px) { .layout { grid-template-columns: minmax(0, 1fr) } }
+
+.rail { display: flex; flex-direction: column; gap: 16px }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px }
+.panel h2 { font-family: var(--display); font-weight: 600; font-size: 22px; margin: 0 0 10px; letter-spacing: -.01em }
+.panel h2 em { font-weight: 400 }
+.seglist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; max-height: 420px; overflow-y: auto }
+.seglist button { width: 100%; text-align: left; border: 1px solid transparent; background: transparent; border-radius: 6px; padding: 8px 10px; display: grid; gap: 2px }
+.seglist button:hover { background: var(--sunk) }
+.seglist button[aria-current="true"] { border-color: var(--accent); background: var(--sunk) }
+.seglist .n { font-family: var(--display); font-size: 16px; font-weight: 600; line-height: 1.25 }
+.seglist .m { font-size: 13px; color: var(--muted) }
+.addrow { display: flex; gap: 6px; margin-top: 10px }
+.addrow input::placeholder { color: var(--muted); opacity: .8 }
+.addrow input { flex: 1; min-width: 0; border: 1px solid var(--line); background: var(--sunk); border-radius: 6px; padding: 6px 8px; font-size: 13px }
+.settings { display: grid; grid-template-columns: 1fr 1fr; gap: 10px }
+.settings label { display: grid; gap: 3px; font-size: 12.5px; color: var(--muted) }
+.settings input, .settings select { border: 1px solid var(--line); background: var(--sunk); border-radius: 6px; padding: 6px 8px; font-size: 14px; color: var(--ink); width: 100% }
+.settings .full { grid-column: 1 / -1 }
+.settings .divider { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 10px; margin-top: 2px; font-family: var(--display); font-size: 18px; font-weight: 600; color: var(--ink) }
+.hint { font-size: 13px; color: var(--muted); margin: 8px 0 0 }
+
+.main { display: flex; flex-direction: column; gap: 16px; min-width: 0 }
+.seghead { display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: flex-end; justify-content: space-between }
+.seghead h2 { font-family: var(--display); font-weight: 600; font-size: clamp(30px, 4vw, 46px); line-height: 1.02; margin: 0; letter-spacing: -.02em; text-wrap: balance }
+.seghead .where { color: var(--muted); font-size: 14px; margin-top: 6px }
+.facts { display: flex; flex-wrap: wrap; gap: 6px 18px }
+.fact { display: grid }
+.fact b { font-family: var(--mono); font-weight: 500; font-size: 17px }
+
+.callrow { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 16px }
+@media (max-width: 1000px) { .callrow { grid-template-columns: minmax(0, 1fr) } }
+.call { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px }
+@media (max-width: 560px) { .call { grid-template-columns: minmax(0, 1fr) } }
+.call .when { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap }
+.verdict { font-family: var(--display); font-weight: 700; font-size: 44px; line-height: 1; margin: 12px 0 10px; letter-spacing: -.01em; display: flex; align-items: center; justify-content: center; width: 100%; max-width: 260px; height: 76px; border-radius: 8px }
+.verdict.go { background: var(--go); color: var(--go-ink) }
+.verdict.maybe { background: var(--maybe); color: var(--maybe-ink) }
+.verdict.no { background: var(--no); color: var(--no-ink) }
+.verdict.dark { color: var(--muted); font-style: italic; font-weight: 400 }
+.reason { color: var(--muted); margin: 0 0 12px; font-size: 14px }
+.metrics { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px 16px }
+.metric b { display: block; font-family: var(--mono); font-weight: 500; font-size: 20px; line-height: 1.2 }
+.metric span { font-size: 13px; color: var(--muted) }
+.leadnote { margin: 14px 0 0; padding: 8px 10px; background: var(--sunk); border: 1px solid var(--line); color: var(--ink); border-radius: 6px; font-size: 13.5px }
+.leadnote strong { color: var(--ink) }
+.pill { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 2px 10px; font-size: 12.5px; font-weight: 600 }
+.pill.maybe { background: var(--maybe); color: var(--maybe-ink) }
+.map svg { width: 100%; height: auto; display: block; max-width: 100% }
+.map figcaption { font-size: 12px; color: var(--muted); margin-top: 6px; display: flex; gap: 12px; flex-wrap: wrap }
+.key { display: inline-flex; align-items: center; gap: 5px }
+.key i { width: 14px; height: 4px; border-radius: 2px; display: inline-block; box-shadow: 0 0 0 1px var(--line) }
+
+.best { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 10px }
+.best h3, .gridpanel h3 { font-family: var(--display); font-weight: 600; font-size: 22px; margin: 0; letter-spacing: -.01em }
+.windows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px }
+.windows button { width: 100%; text-align: left; border: 1px solid var(--line); background: var(--sunk); border-radius: 8px; padding: 10px 12px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; align-items: center }
+.windows button:hover { border-color: var(--muted) }
+.windows .t { font-family: var(--display); font-size: 16px; font-weight: 600 }
+.windows .s { font-size: 13px; color: var(--muted); grid-column: 1 }
+.windows .g { grid-row: 1 / span 2; grid-column: 2; font-family: var(--mono); font-size: 15px; padding: 2px 9px; min-width: 4.8em; text-align: center; border-radius: 999px; background: var(--go); color: var(--go-ink) }
+.windows .g.maybe { background: var(--maybe); color: var(--maybe-ink) }
+.empty { color: var(--muted); font-size: 14px }
+
+.gridpanel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px }
+.gridhead { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: baseline; margin-bottom: 10px }
+.legend { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; color: var(--muted); align-items: center }
+.legend .sw { width: 12px; height: 12px; border-radius: 3px; display: inline-block; vertical-align: -2px; margin-right: 4px; box-shadow: 0 0 0 1px var(--line) }
+.legend .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; background: var(--muted); margin-right: 4px; vertical-align: 1px }
+.scroller { overflow-x: auto; padding-bottom: 4px }
+table.heat { border-collapse: separate; border-spacing: 3px; font-size: 11px; min-width: 640px; width: 100% }
+table.heat th { font-weight: 500; color: var(--muted); text-align: center; font-family: var(--mono) }
+table.heat th.day { text-align: left; white-space: nowrap; padding-right: 6px; font-family: var(--display); font-weight: 600; color: var(--ink); font-size: 13.5px }
+table.heat td { padding: 0 }
+.cell { position: relative; width: 100%; height: 34px; border-radius: 4px; border: 0; display: grid; place-items: center; font-family: var(--mono); font-size: 10.5px; background: var(--night); color: var(--night-ink) }
+.cell.go { background: var(--go-soft); color: var(--go-soft-ink) }
+.cell.go.strong { background: var(--go); color: var(--go-ink) }
+.cell.maybe { background: var(--maybe-soft); color: var(--maybe-soft-ink) }
+.cell.no { background: var(--no-soft); color: var(--no-soft-ink) }
+.cell.night { background: var(--night-bg); color: var(--night-no) }
+.cell.night.go { color: var(--night-go) }
+.cell.night.go.strong { background: var(--night-bg); color: var(--night-go); box-shadow: inset 0 0 0 2px var(--night-go); font-weight: 600 }
+.cell.night.maybe { color: var(--night-maybe) }
+.cell.night.no { color: var(--night-no) }
+.cell.rush::after { content: ""; position: absolute; top: 4px; right: 4px; width: 5px; height: 5px; border-radius: 50%; background: currentColor; opacity: .85 }
+.cell.past { opacity: .35 }
+.cell[aria-pressed="true"] { outline: 2px solid var(--ink); outline-offset: 1px }
+.method { font-size: 13px; color: var(--muted); max-width: 75ch }
+.method summary { cursor: pointer; color: var(--ink); font-family: var(--display); font-size: 17px; font-weight: 600 }
+.method p { margin: 8px 0 }
+/* ---- Brand layer: header band, typography roles ---- */
+header.top { background: var(--head-bg); color: var(--head-ink); border-radius: 12px; padding: 16px 20px; }
+header.top .brand p { color: var(--head-muted) }
+.brand h1 { color: var(--logo-rest); font-family: var(--display); font-weight: 700; letter-spacing: .01em }
+.brand h1 em { color: var(--logo-kom) }
+header.top .status { color: var(--head-muted) }
+header.top .btn:not(.primary) { background: transparent; color: var(--head-ink); border-color: rgba(255,255,255,.35) }
+.pill.live { background: var(--signal); color: var(--signal-ink) }
+.btn.accent { background: var(--signal); border-color: var(--signal); color: var(--signal-ink); font-weight: 600 }
+.seghead h2, .panel h2, .safety h2, .lockup b, .verdict { font-family: var(--display); font-weight: 700 }
+.seghead h2 { color: var(--title) }
+.best h3, .gridpanel h3, .pacehead h3, .segpanel-head h3, .settings .divider, .label, .stats dt, .time span, .time em, .profile h4,
+.settings label, .fld, .alertform legend, .method summary, .pacerow.headrow, .legend, .seglist .n, .nearlist .n, .windows .t,
+table.heat th.day, .safetybox li b, .pacerow .where b, .spill, .pill, .btn, button, input, select, .lockup small, .lockup .but { font-family: var(--sub) }
+.best h3, .gridpanel h3, .pacehead h3, .segpanel-head h3 { font-weight: 700; font-size: 20px }
+.settings .divider { font-weight: 700; font-size: 16px }
+.panel h2 { font-size: 22px }
+.lockup svg { color: var(--crown) }
+.safety p { font-size: 16px }
+.spill { display: inline-flex; align-items: center; border-radius: 999px; padding: 1px 9px; font-size: 12px; font-weight: 600; white-space: nowrap }
+.spill.s0 { background: var(--go-soft); color: var(--go-soft-ink) }
+.spill.s1 { background: var(--maybe-soft); color: var(--maybe-soft-ink) }
+.spill.s2 { background: var(--no-soft); color: var(--no-soft-ink) }
+.safetybox { margin: 0 0 14px; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; background: var(--sunk) }
+.safetyhead { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 6px }
+.safetybox ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 4px 12px; font-size: 13px }
+.safetybox li::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 7px; background: var(--go) }
+.safetybox li.s1::before { background: var(--maybe) }
+.safetybox li.s2::before { background: var(--no) }
+.safetybox li b { font-weight: 600 }
+.cell.risk::before { content: ""; position: absolute; top: 0; left: 0; border-style: solid; border-width: 9px 9px 0 0; border-color: var(--no) transparent transparent transparent; border-top-left-radius: 4px }
+.legend .tri { display: inline-block; width: 0; height: 0; border-style: solid; border-width: 10px 10px 0 0; border-color: var(--no) transparent transparent transparent; margin-right: 4px; vertical-align: -1px }
+.pacing { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px }
+.pacehead { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 6px 16px }
+.pacehead h3 { font-family: var(--display); font-weight: 600; font-size: 22px; margin: 0; letter-spacing: -.01em }
+.pacehead span { font-size: 13px; color: var(--muted) }
+.pacesum { margin: 6px 0 14px; color: var(--muted); font-size: 14px; max-width: 80ch }
+.pacesum b { color: var(--ink) }
+.pacetable { display: grid; gap: 8px }
+.pacerow { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 2fr) 88px 52px; gap: 12px; align-items: center; font-size: 13.5px }
+.pacerow.headrow { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; font-weight: 600 }
+@media (max-width: 640px) { .pacerow { grid-template-columns: minmax(0, 1fr) 88px 52px } .pacerow .bar { grid-column: 1 / -1; grid-row: 2 } .pacerow.headrow .bh { display: none } }
+.pacerow .where b { display: block; font-weight: 600 }
+.pacerow .where span { color: var(--muted); font-size: 12.5px }
+.bar { height: 14px; background: var(--sunk); border: 1px solid var(--line); border-radius: 7px; position: relative; overflow: hidden }
+.bar i { position: absolute; top: 0; bottom: 0; left: 0; background: var(--accent); opacity: .85 }
+.bar u { position: absolute; top: 0; bottom: 0; left: 50%; width: 2px; background: var(--ink); opacity: .45 }
+.pw, .pt { font-family: var(--mono); text-align: right; white-space: nowrap }
+.pw { font-weight: 500 }
+.pw small { display: block; font-size: 11.5px; color: var(--muted) }
+.pt { color: var(--muted) }
+.feas { margin: 14px 0 0; font-size: 13.5px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap }
+.addrow select { flex: 1; min-width: 0; border: 1px solid var(--line); background: var(--sunk); border-radius: 6px; padding: 6px 8px; font-size: 13px; color: var(--ink) }
+.nearlist { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px }
+.nearlist li { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 3px 8px; align-items: center }
+.nearlist .n { font-weight: 600; line-height: 1.25 }
+.nearlist .m { font-size: 12.5px; color: var(--muted) }
+.nearlist button { grid-row: 1 / span 3; grid-column: 2 }
+.nearlist .spill { justify-self: start }
+.alertform { display: grid; gap: 10px }
+.fld { display: grid; gap: 3px; font-size: 12.5px; color: var(--muted) }
+.fld input { border: 1px solid var(--line); background: var(--sunk); border-radius: 6px; padding: 7px 8px; font-size: 14px; color: var(--ink); width: 100% }
+.alertform fieldset { border: 1px solid var(--line); border-radius: 8px; margin: 0; padding: 6px 10px 8px; min-width: 0 }
+.alertform legend { font-size: 12.5px; color: var(--muted); padding: 0 4px }
+.alertsegs { display: grid; gap: 4px; max-height: 180px; overflow-y: auto }
+.chk { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; line-height: 1.4 }
+.chk input { margin-top: 3px; flex: none }
+.btn.accent { background: var(--accent); border-color: var(--accent); color: #fff }
+.btn[disabled] { opacity: .5; cursor: not-allowed }
+.segpanel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px }
+.segpanel-head { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 6px 16px; margin-bottom: 12px }
+.segpanel-head h3 { font-family: var(--display); font-weight: 600; font-size: 22px; margin: 0; letter-spacing: -.01em }
+.segpanel-head span { font-size: 13px; color: var(--muted) }
+.segbody { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 20px; align-items: start }
+@media (max-width: 900px) { .segbody { grid-template-columns: minmax(0, 1fr) } }
+.segmap { position: relative; height: 400px; border-radius: 8px; overflow: hidden; background: var(--map-bg); border: 1px solid var(--line) }
+@media (max-width: 560px) { .segmap { height: 300px } }
+.segmap > svg { position: absolute; inset: 0; width: 100%; height: 100% }
+.lmap { position: absolute; inset: 0; z-index: 1; opacity: 0; pointer-events: none; background: var(--map-bg) }
+.lmap.ok { opacity: 1; pointer-events: auto }
+.maplegend { position: absolute; left: 10px; bottom: 10px; z-index: 500; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 4px 9px; font-size: 12px; color: var(--muted); display: flex; gap: 10px; flex-wrap: wrap }
+.mapwind { position: absolute; top: 10px; right: 10px; z-index: 500; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px 6px 6px; display: flex; align-items: center; gap: 8px; font-size: 12.5px; line-height: 1.3 }
+.mapwind svg { width: 36px; height: 36px; flex: none }
+.mapwind b { font-family: var(--mono); font-weight: 500 }
+.stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 16px; margin: 0 }
+.stats div { display: grid; gap: 2px }
+.stats dt { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; font-weight: 600 }
+.stats dd { margin: 0; font-family: var(--mono); font-size: 20px; font-weight: 500; font-variant-numeric: tabular-nums }
+.stats dd small { font-size: 13px; color: var(--muted) }
+.times { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 18px }
+.time { background: var(--sunk); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; display: grid; gap: 2px }
+.time span { font-size: 12px; color: var(--muted); font-weight: 600; letter-spacing: .06em; text-transform: uppercase }
+.time b { font-family: var(--mono); font-size: 20px; font-weight: 500 }
+.time.target { border-color: var(--title); box-shadow: inset 0 0 0 1px var(--title) }
+.time.target span, .time em { color: var(--title) }
+.time em { font-style: normal; font-size: 12px; font-weight: 600 }
+.profile { margin-top: 18px }
+.profile h4 { margin: 0 0 6px; font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em }
+.profile svg { width: 100%; height: auto; display: block }
+
+.seghead h2 { color: var(--title) }
+.nightnote { margin: -4px 0 12px; font-size: 13px; color: var(--muted) }
+.source { margin: 12px 0 0; padding: 10px 12px; border-radius: 8px; background: var(--sunk); border: 1px solid var(--line); font-size: 13px; color: var(--muted) }
+.source strong { color: var(--ink) }
+
+.safety { margin-top: 28px; background: var(--band-bg); color: var(--band-ink); border-radius: 14px; padding: 24px 28px; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 16px 36px; align-items: center }
+@media (max-width: 640px) { .safety { grid-template-columns: minmax(0, 1fr); justify-items: start } }
+.lockup { display: grid; justify-items: center; line-height: 1 }
+.lockup small { font-family: var(--display); font-style: italic; font-size: 20px }
+.lockup svg { width: 78px; height: auto; margin: 8px 0 2px; display: block; color: var(--crown) }
+.lockup .but { font-family: var(--display); font-style: italic; font-size: 24px; margin-top: 4px }
+.lockup b { font-family: var(--display); font-weight: 600; font-size: 68px; letter-spacing: -.03em }
+.safety h2 { font-family: var(--display); font-weight: 600; font-size: 28px; line-height: 1.1; margin: 0 0 8px; letter-spacing: -.01em; text-wrap: balance }
+.safety h2 em { font-weight: 400 }
+.safety p { margin: 0; max-width: 62ch; font-size: 15px }
+@media (prefers-reduced-motion: no-preference) { .cell, .btn, .windows button { transition: background .15s, border-color .15s } }
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1><em>KOM</em>FIRMED</h1>
+      <p>optimise your attempts</p>
+    </div>
+    <div class="status" id="status"></div>
+  </header>
+
+  <div id="banner" class="banner" hidden></div>
+
+  <div class="layout">
+    <aside class="rail">
+      <section class="panel">
+        <h2 id="listTitle">Segments</h2>
+        <ul class="seglist" id="seglist"></ul>
+        <form class="addrow" id="addForm">
+          <input id="addInput" placeholder="Paste a Strava segment link or ID" aria-label="Strava segment link or ID">
+          <button class="btn small" type="submit">Add</button>
+        </form>
+        <p class="hint" id="addHint"></p>
+      </section>
+
+      <section class="panel">
+        <h2>Rider</h2>
+        <div class="settings">
+          <label class="full">Target
+            <select id="target">
+              <option value="kom">KOM time</option>
+              <option value="qom">QOM time</option>
+              <option value="pr">My PR</option>
+            </select>
+          </label>
+          <label>Rider weight (kg)<input id="weight" type="number" min="35" max="150" step="0.5" value="72"></label>
+          <label>Bike + kit (kg)<input id="bike" type="number" min="5" max="25" step="0.5" value="8.5"></label>
+          <label class="full">Position (CdA)
+            <select id="cda">
+              <option value="0.40">Tops, upright (0.40)</option>
+              <option value="0.32" selected>Hoods (0.32)</option>
+              <option value="0.28">Drops (0.28)</option>
+              <option value="0.24">TT / aero (0.24)</option>
+            </select>
+          </label>
+          <div class="divider">Lead-out</div>
+          <label class="full">Who's pulling you
+            <select id="leadout">
+              <option value="0">No one, solo effort</option>
+              <option value="0.30">One rider (≈30% less drag)</option>
+              <option value="0.40">Two or more, a train (≈40% less drag)</option>
+            </select>
+          </label>
+          <label class="full">Lead-out lasts for
+            <select id="leadpct">
+              <option value="25">First quarter of the segment</option>
+              <option value="50">First half</option>
+              <option value="75">First three quarters</option>
+              <option value="100">The whole segment</option>
+            </select>
+          </label>
+          <div class="divider">Effort and safety</div>
+          <label>FTP (watts)<input id="ftp" type="number" min="80" max="600" step="1" placeholder="Auto"></label>
+          <label>Safety first<select id="safety"><option value="on">On</option><option value="off">Off</option></select></label>
+          <p class="hint full" id="ftpHint" style="margin:0"></p>
+        </div>
+        <p class="hint">Used to turn wind, air density and gradient into seconds. Lighter riders and aero positions feel wind more. A lead-out helps most on flat, fast segments and barely at all on steep climbs. Only ride close together where it's safe and legal.</p>
+      </section>
+      <section class="panel" id="nearPanel">
+        <h2>Segments near me</h2>
+        <p class="hint" style="margin-top:0">Finds segments from your recent rides near where you are, ranked by how achievable the KOM or QOM is for your FTP. Your location is used once, in your browser, and never stored.</p>
+        <div class="addrow">
+          <select id="nearRadius" aria-label="Search radius"><option value="5">Within 5 km</option><option value="15" selected>Within 15 km</option><option value="30">Within 30 km</option></select>
+          <button class="btn small" id="nearBtn" type="button">Find near me</button>
+        </div>
+        <p class="hint" id="nearStatus"></p>
+        <ul class="nearlist" id="nearList"></ul>
+      </section>
+
+      <section class="panel" id="alertPanel">
+        <h2>Window alerts</h2>
+        <p class="hint" style="margin-top:0">Get an email when a good window is forecast on up to 5 of your segments. At most one email a day, and only when something new comes up.</p>
+        <form id="alertForm" class="alertform" novalidate>
+          <label class="fld" for="alertEmail">Email<input id="alertEmail" type="email" autocomplete="email" placeholder="you@example.com"></label>
+          <fieldset><legend>Segments, up to 5</legend><div id="alertSegs" class="alertsegs"></div></fieldset>
+          <label class="chk"><input type="checkbox" id="alertSafe" checked> Only windows rated safe or take care</label>
+          <label class="chk"><input type="checkbox" id="alertMaybe"> Include Maybe windows, not just Go</label>
+          <label class="chk"><input type="checkbox" id="alertConsent"> I agree to receive these emails and can unsubscribe at any time. KOMFIRMED stores my email, these segments and my rider settings only to send them.</label>
+          <button class="btn accent" type="submit" id="alertBtn">Turn on alerts</button>
+          <p class="hint" id="alertStatus" role="status"></p>
+        </form>
+      </section>
+    </aside>
+
+    <main class="main" id="main"></main>
+  </div>
+
+  <section class="safety" aria-labelledby="safetyTitle">
+    <div class="lockup" role="img" aria-label="Strava is 4EVA, but">
+      <small>Strava is</small>
+      <svg viewBox="-8 -8 116 82" aria-hidden="true"><path d="M10 56 L4 16 L29 36 L50 6 L71 36 L96 16 L90 56 Z" fill="currentColor" stroke="currentColor" stroke-width="5" stroke-linejoin="round"/><path d="M12 66 H88" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><circle cx="4" cy="12" r="6" fill="currentColor"/><circle cx="50" cy="1" r="6" fill="currentColor"/><circle cx="96" cy="12" r="6" fill="currentColor"/><circle cx="50" cy="42" r="6" fill="var(--band-bg)"/></svg>
+      <b>4EVA</b>
+      <span class="but">but…</span>
+    </div>
+    <div>
+      <h2 id="safetyTitle">…please be safe out there.</h2>
+      <p>Don't take risks that endanger yourselves or others. Make sure you follow the road rules, and aim to tackle segments when there's the least amount of traffic. Every hour gets a safety rating for traffic, light, road surface and gusts, and Safety first keeps risky hours out of your best windows.</p>
+    </div>
+  </section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+(() => {
+"use strict";
+
+/* ---------- Sample data (demo mode only) ---------- */
+const SAMPLE_SEGMENTS = [
+  { id: "sample-1", sample: true, name: "Zig Zag Road climb", city: "Box Hill, Surrey", distance: 2480, average_grade: 4.6, elevation_gain: 114, elevation_low: 82, shape: "steady",
+    xoms: { kom: "5:58", qom: "7:21" }, pr: 503,
+    points: [[51.2550,-0.3163],[51.2540,-0.3133],[51.2531,-0.3101],[51.2522,-0.3093],[51.2516,-0.3112],[51.2506,-0.3120],[51.2497,-0.3098],[51.2486,-0.3072],[51.2470,-0.3064],[51.2460,-0.3081],[51.2451,-0.3092]] },
+  { id: "sample-2", sample: true, name: "Swain's Lane", city: "Highgate, London", distance: 880, average_grade: 7.9, elevation_gain: 70, elevation_low: 63, shape: "steep",
+    xoms: { kom: "2:01", qom: "2:36" }, pr: 171,
+    points: [[51.5612,-0.1491],[51.5622,-0.1488],[51.5633,-0.1484],[51.5645,-0.1476],[51.5656,-0.1470],[51.5668,-0.1463],[51.5680,-0.1458]] },
+  { id: "sample-3", sample: true, name: "Embankment drag eastbound", city: "Lea Valley, Essex", distance: 3900, average_grade: 0.3, elevation_gain: 12, elevation_low: 9, shape: "flat",
+    xoms: { kom: "4:52", qom: "5:44" }, pr: 352,
+    points: [[51.6820,0.0090],[51.6835,0.0180],[51.6848,0.0270],[51.6860,0.0360],[51.6872,0.0450],[51.6880,0.0545],[51.6888,0.0640]] },
+];
+
+/* MODEL:START (shared with the alerts server; build.py copies this block to lib/model.js) */
+/* ---------- Small helpers ---------- */
+const $ = (s, el = document) => el.querySelector(s);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+  del(k) { try { localStorage.removeItem(k); } catch {} },
+};
+const toRad = (d) => d * Math.PI / 180, toDeg = (r) => r * 180 / Math.PI;
+const COMPASS = ["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"];
+const compass = (deg) => COMPASS[Math.round(((deg % 360) + 360) % 360 / 22.5) % 16];
+const kmh = (ms) => ms * 3.6;
+function fmtTime(sec) {
+  if (sec == null || !isFinite(sec)) return "–";
+  sec = Math.round(sec);
+  const h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60), s = sec % 60;
+  return h ? `${h}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}` : `${m}:${String(s).padStart(2,"0")}`;
+}
+function parseTime(s) {
+  if (s == null) return null;
+  if (typeof s === "number") return s;
+  s = String(s).trim();
+  if (/^\d+(\.\d+)?s$/.test(s)) return parseFloat(s);
+  const p = s.split(":").map(Number);
+  if (!p.length || p.some((x) => isNaN(x))) return null;
+  return p.reduce((a, b) => a * 60 + b, 0);
+}
+const signed = (n, unit = "", dp = 0) => { const r = +Math.abs(n).toFixed(dp); return (r === 0 ? "" : n > 0 ? "+" : "−") + r.toFixed(dp) + unit; };
+
+/* ---------- Geometry ---------- */
+function decodePolyline(str) {
+  let i = 0, lat = 0, lng = 0; const out = [];
+  while (i < str.length) {
+    for (const which of [0, 1]) {
+      let shift = 0, result = 0, b;
+      do { b = str.charCodeAt(i++) - 63; result |= (b & 0x1f) << shift; shift += 5; } while (b >= 0x20);
+      const d = (result & 1) ? ~(result >> 1) : (result >> 1);
+      if (which === 0) lat += d; else lng += d;
+    }
+    out.push([lat / 1e5, lng / 1e5]);
+  }
+  return out;
+}
+function haversine(a, b) {
+  const R = 6371000, dLat = toRad(b[0] - a[0]), dLng = toRad(b[1] - a[1]);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(a[0])) * Math.cos(toRad(b[0])) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+function bearing(a, b) {
+  const y = Math.sin(toRad(b[1] - a[1])) * Math.cos(toRad(b[0]));
+  const x = Math.cos(toRad(a[0])) * Math.sin(toRad(b[0])) - Math.sin(toRad(a[0])) * Math.cos(toRad(b[0])) * Math.cos(toRad(b[1] - a[1]));
+  return (toDeg(Math.atan2(y, x)) + 360) % 360;
+}
+// Split the route into pieces of at least ~40 m, each with a heading, scaled to the segment's official length.
+function routePieces(points, totalDistance) {
+  const pieces = []; let start = points[0], acc = 0;
+  const minLen = Math.max(40, (totalDistance || 0) / 120);
+  for (let i = 1; i < points.length; i++) {
+    acc = haversine(start, points[i]);
+    if (acc >= minLen || i === points.length - 1) {
+      if (acc > 1) pieces.push({ a: start, b: points[i], len: acc, brg: bearing(start, points[i]) });
+      start = points[i];
+    }
+  }
+  const sum = pieces.reduce((s, p) => s + p.len, 0) || 1;
+  const k = totalDistance ? totalDistance / sum : 1;
+  pieces.forEach((p) => (p.len *= k));
+  return pieces;
+}
+// Pieces, heading, centre point and per-piece gradient (from the elevation profile when there is one).
+function prepareSeg(seg) {
+  seg.pieces = routePieces(seg.points, seg.distance);
+  seg.heading = meanHeading(seg.pieces);
+  const mid = seg.points[Math.floor(seg.points.length / 2)];
+  seg.lat = mid[0]; seg.lng = mid[1];
+  const pr = seg.profile, useProfile = pr && !pr.rough && pr.d.length > 2;
+  const k = useProfile ? pr.d[pr.d.length - 1] / seg.distance : 1;
+  let d = 0; seg.minGrade = 0;
+  for (const p of seg.pieces) {
+    p.start = d;
+    p.grade = useProfile ? Math.max(-15, Math.min(25, (altAt(pr, (d + p.len) * k) - altAt(pr, d * k)) / p.len * 100)) : +seg.average_grade || 0;
+    seg.minGrade = Math.min(seg.minGrade, p.grade);
+    d += p.len;
+  }
+  return seg;
+}
+function altAt(pr, x) {
+  const D = pr.d, A = pr.a;
+  if (x <= D[0]) return A[0];
+  for (let i = 1; i < D.length; i++) if (D[i] >= x) { const f = (x - D[i - 1]) / ((D[i] - D[i - 1]) || 1); return A[i - 1] + f * (A[i] - A[i - 1]); }
+  return A[A.length - 1];
+}
+function meanHeading(pieces) {
+  let x = 0, y = 0;
+  pieces.forEach((p) => { x += Math.cos(toRad(p.brg)) * p.len; y += Math.sin(toRad(p.brg)) * p.len; });
+  return (toDeg(Math.atan2(y, x)) + 360) % 360;
+}
+
+/* ---------- Physics ---------- */
+const G = 9.80665, ETA = 0.976, CRR_DRY = 0.0045, CRR_WET = 0.0055;
+// 10 m forecast wind -> wind at rider height on open road (log profile ~0.7, a little extra for hedges/buildings).
+const WIND_AT_RIDER = 0.65;
+function airDensity(tC, pHpa, rh) {
+  const tK = tC + 273.15;
+  const es = 6.1078 * Math.pow(10, (7.5 * tC) / (tC + 237.3));
+  const pv = (rh / 100) * es, pd = pHpa - pv;
+  return (pd * 100) / (287.058 * tK) + (pv * 100) / (461.495 * tK);
+}
+const NEUTRAL = { rho: airDensity(15, 1013.25, 60), wind: 0, windFrom: 0, crr: CRR_DRY };
+function powerAt(v, grade, tail, rho, rider, crr) {
+  const th = Math.atan(grade / 100), va = v - tail;
+  return (rider.mass * G * (Math.sin(th) + crr * Math.cos(th)) * v + 0.5 * rho * rider.cda * va * Math.abs(va) * v) / ETA;
+}
+function speedFor(P, grade, tail, rho, rider, crr) {
+  let lo = 0.3, hi = 30;
+  if (powerAt(hi, grade, tail, rho, rider, crr) < P) return hi;
+  for (let i = 0; i < 50; i++) { const mid = (lo + hi) / 2; if (powerAt(mid, grade, tail, rho, rider, crr) < P) lo = mid; else hi = mid; }
+  return (lo + hi) / 2;
+}
+function tailwindOn(piece, cond) {
+  // windFrom is meteorological (where it blows from); it pushes toward windFrom+180.
+  return cond.wind * WIND_AT_RIDER * Math.cos(toRad(cond.windFrom + 180 - piece.brg));
+}
+function segmentTime(P, seg, cond, rider) {
+  // Pieces inside the lead-out distance are ridden in the draft (lower CdA), the rest solo.
+  const leadDist = rider.draft > 0 ? seg.distance * rider.leadPct : 0;
+  const drafting = { mass: rider.mass, cda: rider.cda * (1 - (rider.draft || 0)) };
+  let t = 0, d = 0;
+  for (const p of seg.pieces) {
+    const r = d + p.len / 2 < leadDist ? drafting : rider;
+    t += p.len / speedFor(P, p.grade ?? seg.average_grade, tailwindOn(p, cond), cond.rho, r, cond.crr);
+    d += p.len;
+  }
+  return t;
+}
+function powerForTime(T, seg, cond, rider) {
+  let lo = 20, hi = 2500;
+  for (let i = 0; i < 50; i++) { const mid = (lo + hi) / 2; if (segmentTime(mid, seg, cond, rider) > T) lo = mid; else hi = mid; }
+  return (lo + hi) / 2;
+}
+
+/* ---------- Scoring an hour ---------- */
+function evaluateHour(seg, f, i, rider, targetT, Pref, base) {
+  const h = f.hourly;
+  const temp = h.temperature_2m[i], rh = h.relative_humidity_2m[i] ?? 70, pres = h.surface_pressure[i] ?? 1013;
+  const wind = h.wind_speed_10m[i] ?? 0, from = h.wind_direction_10m[i] ?? 0, gust = h.wind_gusts_10m[i] ?? wind;
+  const rain = h.precipitation[i] ?? 0, prob = h.precipitation_probability?.[i] ?? 0, isDay = h.is_day?.[i] ?? 1;
+  const prev = (h.precipitation[i - 1] ?? 0) + (h.precipitation[i - 2] ?? 0) + (h.precipitation[i - 3] ?? 0);
+  const wet = rain >= 0.1 || prev >= 0.4;
+  const cond = { rho: airDensity(temp, pres, rh), wind, windFrom: from, crr: wet ? CRR_WET : CRR_DRY };
+  const t = segmentTime(Pref, seg, cond, rider);
+  const gain = targetT - t;               // seconds faster than riding solo in still, cool, dry air (lead-out included)
+  const wxGain = base - t;                // the part the weather alone is worth
+  const gainPct = (wxGain / base) * 100;
+  const watts = null; // computed lazily for the hour on screen (expensive)
+  const tailAvg = seg.pieces.reduce((s, p) => s + tailwindOn(p, cond) * p.len, 0) / seg.distance;
+
+  let verdict, reason;
+  if (wet) { verdict = "no"; reason = rain >= 0.1 ? `Raining (${rain.toFixed(1)} mm)` : "Roads still wet from earlier rain"; }
+  else if (kmh(gust) >= 55) { verdict = "no"; reason = `Gusts to ${Math.round(kmh(gust))} km/h, unsafe and unpredictable`; }
+  else {
+    let score = gainPct;
+    if (temp < 3) score -= 1; else if (temp > 30) score -= 0.7;
+    verdict = score >= 2 ? "go" : score >= 0.6 ? "maybe" : "no";
+    if (prob >= 50 && verdict !== "no") { verdict = verdict === "go" ? "maybe" : "no"; reason = `${prob}% chance of rain`; }
+    else if (verdict === "go") reason = tailAvg > 0.5 ? "Tailwind along the segment" : "Fast air: warm and low pressure";
+    else if (verdict === "maybe") reason = "Slight help from the conditions";
+    else reason = tailAvg < -0.5 ? "Headwind along the segment" : temp < 3 ? "Too cold to go deep" : "Conditions give you nothing";
+  }
+  const ev = { i, time: h.time[i], temp, rh, pres, wind, from, gust, rain, prob, isDay, wet, cond, rho: cond.rho, t, gain, wxGain, gainPct, watts, tailAvg, verdict, reason, night: !isDay };
+  ev.safety = safetyFor(ev, seg);
+  return ev;
+}
+function evaluateAll(seg, f, rider, T) {
+  const solo = Object.assign({}, rider, { draft: 0 });
+  const Pref = powerForTime(T, seg, NEUTRAL, solo);
+  const base = segmentTime(Pref, seg, NEUTRAL, rider);
+  return { Pref, base, evals: f.hourly.time.map((_, i) => evaluateHour(seg, f, i, rider, T, Pref, base)) };
+}
+
+/* ---------- Safety ---------- */
+const RUSH = new Set([7, 8, 16, 17, 18]);
+function isRush(s) { const d = new Date(tsOf(s)), wd = d.getUTCDay(); return wd >= 1 && wd <= 5 && RUSH.has(d.getUTCHours()); }
+// Rough road-traffic level by local time: 0 very quiet, 1 quiet, 2 moderate, 3 rush hour.
+function trafficLevel(s) {
+  const d = new Date(tsOf(s)), h = d.getUTCHours(), wd = d.getUTCDay(), weekend = wd === 0 || wd === 6;
+  if (h >= 22 || h < 5) return 0;
+  if (!weekend) return RUSH.has(h) ? 3 : h < 7 || h >= 19 ? 1 : 2;
+  return h < 8 || h >= 18 ? 1 : 2;
+}
+const TRAFFIC = ["Very quiet", "Quiet", "Moderate", "Rush hour"];
+const SAFETY = ["Safe", "Take care", "Risky"];
+function safetyFor(ev, seg) {
+  const tr = trafficLevel(ev.time), g = Math.round(kmh(ev.gust));
+  const items = [
+    { k: "Traffic", v: TRAFFIC[tr], s: tr >= 3 ? 2 : tr === 2 ? 1 : 0 },
+    ev.night ? { k: "Light", v: "After dark, lights on", s: 1 } : { k: "Light", v: "Daylight", s: 0 },
+    ev.wet ? { k: "Road", v: "Wet", s: 2 } : ev.temp <= 2 ? { k: "Road", v: "Ice risk", s: 2 } : ev.temp <= 4 ? { k: "Road", v: "Cold, damp in shade", s: 1 } : { k: "Road", v: "Dry", s: 0 },
+    { k: "Gusts", v: `${g} km/h`, s: g >= 55 ? 2 : g >= 40 ? 1 : 0 },
+  ];
+  if (seg && seg.minGrade <= -6) items.push({ k: "Route", v: "Steep descent", s: 1 });
+  const level = Math.max(...items.map((x) => x.s));
+  return { level, label: SAFETY[level], items };
+}
+
+/* ---------- Best windows ---------- */
+function findWindows(evals, fromIdx, opts = {}) {
+  const { safetyFirst = true, includeMaybe = true, limit = 4, minHour = 5, maxHour = 21, toIdx = Infinity } = opts;
+  const ok = evals.filter((e) => {
+    const hh = new Date(tsOf(e.time)).getUTCHours();
+    return e.i >= fromIdx && e.i <= toIdx && hh >= minHour && hh <= maxHour
+      && (e.verdict === "go" || (includeMaybe && e.verdict === "maybe"))
+      && (!safetyFirst || e.safety.level < 2);
+  });
+  const wins = [];
+  ok.forEach((e) => {
+    const last = wins[wins.length - 1];
+    if (last && e.i === last.end.i + 1 && e.verdict === last.peak.verdict && e.night === last.peak.night && e.safety.level === last.safety) {
+      last.end = e; if (e.wxGain > last.peak.wxGain) last.peak = e;
+    } else wins.push({ start: e, end: e, peak: e, safety: e.safety.level });
+  });
+  return wins.sort((a, b) => (b.peak.verdict === "go") - (a.peak.verdict === "go") || (safetyFirst ? a.safety - b.safety : 0) || b.peak.wxGain - a.peak.wxGain).slice(0, limit);
+}
+
+/* ---------- Pacing ---------- */
+// Splits the segment into a few sections and shares out effort so that more goes where it buys the most
+// time (climbs, headwinds) and less where it buys little (tailwinds, descents), keeping the overall strain
+// the same as a steady ride. Strain is measured like Normalized Power (time-weighted 4th power), which
+// stops the plan from simply going all-out on every climb.
+function pacingPlan(seg, cond, rider, Pavg) {
+  const n = Math.max(2, Math.min(6, Math.round(seg.distance / 400)));
+  const target = seg.distance / n, secs = [];
+  let cur = null;
+  for (const p of seg.pieces) {
+    if (!cur || (cur.len >= target * 0.9 && secs.length < n)) { cur = { pieces: [], len: 0, from: p.start }; secs.push(cur); }
+    cur.pieces.push(p); cur.len += p.len;
+  }
+  const leadDist = rider.draft > 0 ? seg.distance * rider.leadPct : 0;
+  const drafting = { mass: rider.mass, cda: rider.cda * (1 - (rider.draft || 0)) };
+  const secTime = (sec, P) => sec.pieces.reduce((t, p) => t + p.len / speedFor(P, p.grade ?? seg.average_grade, tailwindOn(p, cond), cond.rho, p.start + p.len / 2 < leadDist ? drafting : rider, cond.crr), 0);
+  const steps = []; for (let x = 0.85; x <= 1.2001; x += 0.01) steps.push(Pavg * x);
+  const table = secs.map((sec) => steps.map((P) => secTime(sec, P)));
+  const even = secs.map((sec) => secTime(sec, Pavg));
+  const load = steps.map((P) => Math.pow(P / Pavg, 4));
+  const Teven = even.reduce((a, b) => a + b, 0), W = Teven;   // strain of a steady ride (load 1 per second)
+  const choose = (lam) => table.map((row) => { let bi = 0, bv = Infinity; row.forEach((t, k) => { const v = t * (1 + lam * load[k]); if (v < bv) { bv = v; bi = k; } }); return bi; });
+  const work = (ks) => ks.reduce((w, k, i) => w + load[k] * table[i][k], 0);
+  let lo = 0, hi = 1, ks = choose(hi);
+  while (work(ks) > W && hi < 10) { hi *= 2; ks = choose(hi); }
+  for (let it = 0; it < 40; it++) { const mid = (lo + hi) / 2, k2 = choose(mid); if (work(k2) > W) lo = mid; else { hi = mid; ks = k2; } }
+  const out = secs.map((sec, i) => {
+    const grade = sec.pieces.reduce((g, p) => g + (p.grade ?? seg.average_grade) * p.len, 0) / sec.len;
+    const tail = sec.pieces.reduce((w, p) => w + tailwindOn(p, cond) * p.len, 0) / sec.len;
+    return { from: sec.from, to: sec.from + sec.len, grade, tail, P: steps[ks[i]], t: table[i][ks[i]], tEven: even[i] };
+  });
+  const Tplan = out.reduce((a, s) => a + s.t, 0);
+  return { sections: out, Pavg, Teven, Tplan, saved: Teven - Tplan };
+}
+
+/* ---------- FTP ---------- */
+// Power a rider can hold for a given duration, from FTP (a standard power-duration curve, rough below 2 minutes).
+const sustainable = (sec, ftp) => ftp * Math.pow(Math.max(30, sec) / 3600, -0.07);
+const ftpFromEffort = (P, sec) => P / Math.pow(Math.max(30, sec) / 3600, -0.07);
+const REACH = ["Within reach", "Needs a tailwind", "Big day needed", "Out of reach"];
+function achievability(seg, T, ftp, rider) {
+  const need = powerForTime(T, seg, NEUTRAL, Object.assign({}, rider, { draft: 0 }));
+  const can = sustainable(T, ftp), ratio = need / can;
+  const level = ratio <= 1 ? 0 : ratio <= 1.08 ? 1 : ratio <= 1.2 ? 2 : 3;
+  return { need, can, ratio, level, label: REACH[level] };
+}
+
+/* ---------- Forecast ---------- */
+const FC_VARS = "temperature_2m,relative_humidity_2m,precipitation,precipitation_probability,wind_speed_10m,wind_direction_10m,wind_gusts_10m,surface_pressure,is_day";
+// Which national weather service's high-resolution model covers a spot. Boxes are checked in order.
+// [minLat, maxLat, minLng, maxLng]
+const SOURCES = [
+  { id: "ukmo_seamless", name: "UK Met Office", model: "UKV 2 km model, blended with the Met Office global model", box: [49.8, 61, -11, 1.8] },
+  { id: "knmi_seamless", name: "KNMI (Netherlands)", model: "Harmonie-AROME model, blended with ECMWF", box: [49.4, 53.7, 2.5, 7.3] },
+  { id: "meteofrance_seamless", name: "Météo-France", model: "AROME model, blended with ARPEGE", box: [41.3, 51.2, -5.3, 9.7] },
+  { id: "metno_seamless", name: "MET Norway", model: "MET Nordic model, blended with ECMWF", box: [54.5, 71.5, 4.5, 31.5] },
+  { id: "icon_seamless", name: "DWD (German Weather Service)", model: "ICON-D2 2 km model, blended with ICON-EU and global", box: [43, 56, 5, 20] },
+  { id: "gfs_seamless", name: "NOAA (US National Weather Service)", model: "HRRR 3 km model, blended with GFS", box: [24.5, 49.4, -125, -66.9] },
+  { id: "gem_seamless", name: "Environment Canada", model: "HRDPS 2.5 km model, blended with GEM", box: [41.7, 75, -141, -52] },
+  { id: "jma_seamless", name: "Japan Meteorological Agency", model: "MSM model, blended with GSM", box: [24, 46, 122, 146] },
+];
+const BEST_MATCH = { id: "best_match", name: "Open-Meteo best match", model: "a blend of the best global models for this spot, such as ECMWF, NOAA GFS and DWD ICON" };
+function sourceFor(lat, lng) {
+  return SOURCES.find(({ box: [a, b, c, d] }) => lat >= a && lat <= b && lng >= c && lng <= d) || BEST_MATCH;
+}
+async function getJSON(url) {
+  const ctrl = new AbortController(); const timer = setTimeout(() => ctrl.abort(), 8000);
+  try {
+    const r = await fetch(url, { signal: ctrl.signal });
+    if (!r.ok) throw new Error("forecast " + r.status);
+    return await r.json();
+  } finally { clearTimeout(timer); }
+}
+// Use the national model's values; fill any gaps (e.g. rain probability, beyond its range) from best match.
+function mergeModels(j, id) {
+  const h = j.hourly, out = { time: h.time }; let used = 0, filled = 0;
+  for (const v of FC_VARS.split(",")) {
+    const a = h[`${v}_${id}`], b = h[`${v}_best_match`] || h[v];
+    if (!a && !b) continue;
+    out[v] = (a || b).map((_, i) => {
+      if (a && a[i] != null) { if (v === "temperature_2m") used++; return a[i]; }
+      if (b && b[i] != null) { filled++; return b[i]; }
+      return null;
+    });
+  }
+  return used ? Object.assign({}, j, { hourly: out, filled: filled > 0 }) : null;
+}
+async function fetchForecast(lat, lng) {
+  const src = sourceFor(lat, lng);
+  const base = `https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(4)}&longitude=${lng.toFixed(4)}&hourly=${FC_VARS}&wind_speed_unit=ms&timezone=auto&past_days=1&forecast_days=7`;
+  if (src !== BEST_MATCH) {
+    try {
+      const merged = mergeModels(await getJSON(`${base}&models=${src.id},best_match`), src.id);
+      if (merged) return Object.assign(merged, { live: true, source: src, fetchedAt: Date.now() });
+    } catch {}
+  }
+  const j = await getJSON(base);
+  return Object.assign(j, { live: true, source: BEST_MATCH, fallbackFrom: src !== BEST_MATCH ? src.name : null, fetchedAt: Date.now() });
+}
+function sourceHTML(f, seg) {
+  const s = f.source || sourceFor(seg.lat, seg.lng);
+  if (!f.live) return `<strong>Weather data:</strong> simulated for this demo. Once the app is deployed, this location uses <strong>${esc(s.name)}</strong> (${esc(s.model)}), delivered through <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo</a>.`;
+  const at = new Date(f.fetchedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  return `<strong>Weather data:</strong> ${f.fallbackFrom ? esc(f.fallbackFrom) + " data wasn't available just now, so this uses " : ""}<strong>${esc(s.name)}</strong> (${esc(s.model)}), delivered through <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo</a>, for ${seg.lat.toFixed(3)}, ${seg.lng.toFixed(3)} in ${esc(f.timezone)} time.${f.filled ? " Gaps, such as rain probability, are filled from Open-Meteo's best-match blend." : ""} Fetched at ${at}.`;
+}
+// Deterministic stand-in used only when live forecasts can't be reached (e.g. the preview page).
+function sampleForecast(lat, lng) {
+  const now = new Date(); const start = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()) - 864e5;
+  const seed = Math.abs(Math.sin(lat * 12.9898 + lng * 78.233)) * 10;
+  const h = { time: [], temperature_2m: [], relative_humidity_2m: [], precipitation: [], precipitation_probability: [], wind_speed_10m: [], wind_direction_10m: [], wind_gusts_10m: [], surface_pressure: [], is_day: [] };
+  for (let i = 0; i < 24 * 8; i++) {
+    const d = new Date(start + i * 36e5), hr = d.getUTCHours(), x = i + seed;
+    h.time.push(d.toISOString().slice(0, 13) + ":00");
+    h.temperature_2m.push(+(9 + 4 * Math.sin((hr - 9) / 24 * 2 * Math.PI) + 2.5 * Math.sin(x / 41)).toFixed(1));
+    h.relative_humidity_2m.push(Math.round(78 - 12 * Math.sin((hr - 9) / 24 * 2 * Math.PI)));
+    const wet = Math.sin(x / 11) + Math.sin(x / 5.3) > 1.45;
+    h.precipitation.push(wet ? +(0.3 + 0.6 * Math.abs(Math.sin(x))).toFixed(1) : 0);
+    h.precipitation_probability.push(Math.max(0, Math.min(100, Math.round(35 + 45 * (Math.sin(x / 11) + Math.sin(x / 5.3)) / 2))));
+    const ws = Math.max(0.6, 4.8 + 3 * Math.sin(x / 17) + 1.6 * Math.sin(x / 6.1));
+    h.wind_speed_10m.push(+ws.toFixed(1));
+    h.wind_gusts_10m.push(+(ws * 1.65).toFixed(1));
+    h.wind_direction_10m.push(Math.round((235 + 95 * Math.sin(x / 29) + 360) % 360));
+    h.surface_pressure.push(+(1010 + 9 * Math.sin(x / 53)).toFixed(1));
+    h.is_day.push(hr >= 7 && hr <= 16 ? 1 : 0);
+  }
+  return { hourly: h, utc_offset_seconds: 0, timezone: "Europe/London", live: false, source: sourceFor(lat, lng) };
+}
+const tsOf = (s) => { const [d, t] = s.split("T"); const [Y, M, D] = d.split("-").map(Number); const [hh, mm] = t.split(":").map(Number); return Date.UTC(Y, M - 1, D, hh, mm || 0); };
+const DAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const fmtWhen = (s) => { const d = new Date(tsOf(s)); return `${DAYS[d.getUTCDay()]} ${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}, ${String(d.getUTCHours()).padStart(2,"0")}:00`; };
+const fmtDay = (ts) => { const d = new Date(ts); return `${DAYS[d.getUTCDay()]} ${d.getUTCDate()}`; };
+
+/* MODEL:END */
+
+/* ---------- Strava ---------- */
+const STRAVA = "https://www.strava.com/api/v3";
+const state = {
+  config: null, demo: true, tokens: store.get("tw.tokens", null),
+  segments: [], selected: null, forecasts: {}, details: store.get("tw.details", {}), hourPick: null, error: "",
+  settings: Object.assign({ target: "kom", weight: 72, bike: 8.5, cda: "0.32", leadout: "0", leadpct: "50", ftp: "", safety: "on" }, store.get("tw.settings", {})),
+  ftpAuto: null, athleteFtp: null, near: null,
+};
+async function api(path, opts) {
+  const r = await fetch(path, opts);
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.error || `Request failed (${r.status})`);
+  return j;
+}
+async function loadConfig() {
+  try { state.config = await api("/api/config"); } catch { state.config = { configured: false, clientId: "", unreachable: true }; }
+}
+async function accessToken() {
+  const t = state.tokens; if (!t) return null;
+  if (t.expires_at * 1000 > Date.now() + 60000) return t.access_token;
+  const fresh = await api("/api/token", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ refresh_token: t.refresh_token }) });
+  state.tokens = Object.assign({}, t, fresh); store.set("tw.tokens", state.tokens);
+  return state.tokens.access_token;
+}
+async function strava(path) {
+  const tok = await accessToken();
+  const r = await fetch(STRAVA + path, { headers: { Authorization: "Bearer " + tok } });
+  if (r.status === 401) { signOut(); throw new Error("Strava session expired. Connect again."); }
+  if (r.status === 429) throw new Error("Strava rate limit reached. Try again in 15 minutes.");
+  if (!r.ok) throw new Error(`Strava returned ${r.status} for ${path}`);
+  return r.json();
+}
+function connect(scope = "read") {
+  const redirect = location.origin + location.pathname;
+  const u = new URL("https://www.strava.com/oauth/authorize");
+  u.search = new URLSearchParams({ client_id: state.config.clientId, redirect_uri: redirect, response_type: "code", approval_prompt: scope === "read" ? "auto" : "force", scope });
+  location.href = u.toString();
+}
+function signOut() { state.tokens = null; store.del("tw.tokens"); state.demo = true; init(); }
+async function handleRedirect() {
+  const q = new URLSearchParams(location.search);
+  if (q.get("error")) { state.error = "Strava connection was cancelled."; }
+  const code = q.get("code");
+  if (!code) return;
+  history.replaceState(null, "", location.pathname);
+  try {
+    state.tokens = await api("/api/token", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ code }) });
+    state.tokens.scope = state.tokens.scope || q.get("scope") || "read";
+    store.set("tw.tokens", state.tokens);
+    if (state.tokens.athlete?.weight && !store.get("tw.settings", null)?.weight) state.settings.weight = state.tokens.athlete.weight;
+    if (state.tokens.athlete?.sex === "F" && !store.get("tw.settings", null)?.target) state.settings.target = "qom";
+  } catch (e) { state.error = "Couldn't finish connecting to Strava: " + e.message; }
+}
+
+function normaliseSegment(d) {
+  const pts = d.points || (d.map?.polyline ? decodePolyline(d.map.polyline) : [d.start_latlng, d.end_latlng]);
+  const seg = {
+    id: d.id, sample: !!d.sample, name: d.name, city: d.city ? [d.city, d.state].filter(Boolean).join(", ") : d.city,
+    distance: d.distance, average_grade: d.average_grade, elevation_gain: d.total_elevation_gain ?? d.elevation_gain ?? Math.max(0, (d.elevation_high ?? 0) - (d.elevation_low ?? 0)),
+    kom: parseTime(d.xoms?.kom), qom: parseTime(d.xoms?.qom),
+    pr: d.pr ?? d.athlete_segment_stats?.pr_elapsed_time ?? d.athlete_pr_effort?.elapsed_time ?? null,
+    points: pts, detailed: !!(d.points || d.map?.polyline),
+    elevLow: d.elevation_low ?? null, elevHigh: d.elevation_high ?? null, maxGrade: d.maximum_grade ?? null,
+    climbCat: d.climb_category ?? null, profile: d.profile || null,
+  };
+  if (d.sample && !seg.profile) seg.profile = sampleProfile(seg.distance, d.elevation_low, seg.elevation_gain, d.shape);
+  if (!seg.profile && seg.elevLow != null && seg.elevHigh != null) seg.profile = { d: [0, seg.distance], a: [seg.elevLow, seg.elevHigh], rough: true };
+  if (seg.profile) {
+    const a = seg.profile.a;
+    seg.elevLow = seg.elevLow ?? Math.min(...a); seg.elevHigh = seg.elevHigh ?? Math.max(...a);
+    if (seg.maxGrade == null && !seg.profile.rough) seg.maxGrade = steepest(seg.profile);
+  }
+  return prepareSeg(seg);
+}
+// Illustrative elevation profile for the demo segments.
+function sampleProfile(dist, low, gain, shape) {
+  const d = [], a = [], n = 120;
+  for (let k = 0; k <= n; k++) {
+    const t = k / n;
+    let g = t;
+    if (shape === "steady") g = t + 0.035 * Math.sin(t * Math.PI * 6) * Math.sin(t * Math.PI);
+    if (shape === "steep") g = 1 - Math.pow(1 - t, 1.35) + 0.03 * Math.sin(t * Math.PI * 4) * Math.sin(t * Math.PI);
+    if (shape === "flat") g = t + 0.6 * Math.sin(t * Math.PI * 3) * Math.sin(t * Math.PI);
+    d.push(dist * t); a.push(+(low + gain * g).toFixed(1));
+  }
+  return { d, a };
+}
+// Steepest gradient over any ~50 m stretch.
+function steepest({ d, a }) {
+  let best = 0;
+  for (let i = 0; i < d.length; i++) {
+    let j = i; while (j < d.length - 1 && d[j] - d[i] < 50) j++;
+    if (d[j] - d[i] >= 25) best = Math.max(best, (a[j] - a[i]) / (d[j] - d[i]) * 100);
+  }
+  return +best.toFixed(1);
+}
+function downsample(d, a, max = 200) {
+  if (d.length <= max) return { d, a };
+  const step = (d.length - 1) / (max - 1), D = [], A = [];
+  for (let k = 0; k < max; k++) { const i = Math.round(k * step); D.push(d[i]); A.push(a[i]); }
+  return { d: D, a: A };
+}
+async function segmentDetail(id) {
+  const cached = state.details[id];
+  if (cached && cached.d.v === 2 && Date.now() - cached.at < 864e5) return cached.d;   // KOM times change; refresh daily
+  const d = await strava(`/segments/${id}`);
+  const keep = { id: d.id, name: d.name, city: d.city, state: d.state, distance: d.distance, average_grade: d.average_grade, total_elevation_gain: d.total_elevation_gain,
+    elevation_high: d.elevation_high, elevation_low: d.elevation_low, start_latlng: d.start_latlng, end_latlng: d.end_latlng,
+    map: { polyline: d.map?.polyline }, xoms: d.xoms, athlete_segment_stats: d.athlete_segment_stats,
+    maximum_grade: d.maximum_grade, climb_category: d.climb_category, v: 2 };
+  try {
+    const st = await strava(`/segments/${id}/streams?keys=distance,altitude&key_by_type=true`);
+    const pick = (k) => (Array.isArray(st) ? st.find((x) => x.type === k) : st[k])?.data;
+    const sd = pick("distance"), sa = pick("altitude");
+    if (sd?.length && sa?.length === sd.length) keep.profile = downsample(sd, sa);
+  } catch {}
+  state.details[id] = { at: Date.now(), d: keep }; store.set("tw.details", state.details);
+  return keep;
+}
+
+/* ---------- Rendering ---------- */
+function rider() {
+  const s = state.settings;
+  return { mass: (+s.weight || 72) + (+s.bike || 8.5), cda: +s.cda || 0.32, draft: +s.leadout || 0, leadPct: (+s.leadpct || 0) / 100 };
+}
+const soloRider = () => Object.assign(rider(), { draft: 0 });
+function targetFor(seg) {
+  const t = state.settings.target;
+  const v = t === "qom" ? seg.qom : t === "pr" ? seg.pr : seg.kom;
+  const label = t === "qom" ? "QOM" : t === "pr" ? "PR" : "KOM";
+  if (v) return { T: v, label };
+  // Fall back to whichever time exists.
+  const alt = seg.kom ? { T: seg.kom, label: "KOM" } : seg.qom ? { T: seg.qom, label: "QOM" } : seg.pr ? { T: seg.pr, label: "PR" } : null;
+  return alt || { T: seg.distance / 8, label: "est." };
+}
+
+function renderStatus() {
+  const el = $("#status");
+  if (state.tokens) {
+    const a = state.tokens.athlete;
+    el.innerHTML = `<span>Connected${a ? " as <strong>" + esc(a.firstname) + "</strong>" : ""}</span><button class="btn small" id="signout">Disconnect</button>`;
+    $("#signout").onclick = signOut;
+  } else if (state.config?.configured) {
+    el.innerHTML = `<button class="btn primary" id="connect">Connect with Strava</button>`;
+    $("#connect").onclick = () => connect();
+  } else {
+    el.innerHTML = `<span class="pill live">Demo mode</span>`;
+  }
+  const b = $("#banner");
+  if (state.error) { b.hidden = false; b.className = "banner error"; b.textContent = state.error; }
+  else if (state.demo) {
+    b.hidden = false; b.className = "banner";
+    b.innerHTML = state.config?.configured
+      ? `<strong>Showing example segments.</strong> Connect with Strava to load your starred segments and their current KOM/QOM times.`
+      : `<strong>Demo.</strong> Example segments with illustrative target times${state.forecastLive === false ? " and a simulated forecast (live forecasts load when the app is deployed)" : ""}. Deploy with your Strava API keys to use real segments.`;
+  } else b.hidden = true;
+}
+
+function renderList() {
+  $("#listTitle").textContent = state.demo ? "Example segments" : "Starred segments";
+  $("#addForm").hidden = state.demo;
+  $("#addHint").textContent = state.demo ? "" : "Star segments on Strava to have them appear here, or paste one below.";
+  const ul = $("#seglist");
+  if (!state.segments.length) { ul.innerHTML = `<li class="empty">No starred segments yet. Star a few on Strava, or paste a segment link below.</li>`; return; }
+  ul.innerHTML = state.segments.map((s) => `<li><button data-id="${esc(s.id)}" aria-current="${String(s.id) === String(state.selected)}">
+    <span class="n">${esc(s.name)}</span>
+    <span class="m num">${(s.distance / 1000).toFixed(2)} km · ${(+s.average_grade).toFixed(1)}%${s.city ? " · " + esc(s.city) : ""}</span></button></li>`).join("");
+  ul.querySelectorAll("button").forEach((b) => (b.onclick = () => select(b.dataset.id)));
+}
+
+function routeSVG(seg, ev) {
+  const W = 640, H = 400, pad = 40;
+  const lat0 = toRad(seg.lat);
+  const xy = seg.points.map(([la, ln]) => [ln * Math.cos(lat0), la]);
+  const xs = xy.map((p) => p[0]), ys = xy.map((p) => p[1]);
+  const minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys);
+  const span = Math.max(maxX - minX, maxY - minY) || 1e-4;
+  const sc = (Math.min(W, H) - pad * 2) / span;
+  const ox = (W - (maxX - minX) * sc) / 2, oy = (H - (maxY - minY) * sc) / 2;
+  const P = ([x, y]) => [ox + (x - minX) * sc, H - (oy + (y - minY) * sc)];
+  const cond = { wind: ev.wind, windFrom: ev.from };
+  const lines = seg.pieces.map((p) => {
+    const a = P([p.a[1] * Math.cos(lat0), p.a[0]]), b = P([p.b[1] * Math.cos(lat0), p.b[0]]);
+    const tw = tailwindOn(p, cond);
+    const col = tw > 0.4 ? "var(--map-tail)" : tw < -0.4 ? "var(--map-head)" : "var(--map-flat)";
+    return `<line x1="${a[0].toFixed(1)}" y1="${a[1].toFixed(1)}" x2="${b[0].toFixed(1)}" y2="${b[1].toFixed(1)}" stroke="${col}" stroke-width="7" stroke-linecap="round"/>`;
+  }).join("");
+  const s = P(xy[0]), e = P(xy[xy.length - 1]);
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Route shape coloured by tailwind and headwind">
+    <rect x="-2000" y="-2000" width="5000" height="5000" fill="var(--map-bg)"/>
+    ${lines}
+    <circle cx="${s[0].toFixed(1)}" cy="${s[1].toFixed(1)}" r="8" fill="var(--map-bg)" stroke="var(--map-ink)" stroke-width="3"/>
+    <circle cx="${e[0].toFixed(1)}" cy="${e[1].toFixed(1)}" r="8" fill="var(--map-ink)"/>
+    <text x="${s[0].toFixed(1)}" y="${(s[1] - 14).toFixed(1)}" font-size="13" text-anchor="middle" fill="var(--map-ink)" font-family="var(--body)" font-weight="600">Start</text>
+    <text x="${e[0].toFixed(1)}" y="${(e[1] + 26).toFixed(1)}" font-size="13" text-anchor="middle" fill="var(--map-ink)" font-family="var(--body)" font-weight="600">Finish</text>
+  </svg>`;
+}
+
+function callCard(seg, ev, tgt, title) {
+  const v = ev.verdict, word = { go: "Go", maybe: "Maybe", no: "Not now", dark: "Dark" }[v];
+  const r = rider();
+  const still = powerForTime(tgt.T, seg, NEUTRAL, soloRider());
+  if (ev.watts == null) ev.watts = powerForTime(tgt.T, seg, ev.cond, r);
+  let lead = "";
+  if (r.draft > 0) {
+    const leadT = segmentTime(still, seg, NEUTRAL, r);
+    const leadW = still - powerForTime(tgt.T, seg, NEUTRAL, r);
+    const m = Math.round(seg.distance * r.leadPct);
+    lead = `<p class="leadnote"><strong>Lead-out worth ${signed(leadT - tgt.T, " s")}</strong> at the same effort, or ${Math.round(leadW)} W less to hold ${esc(tgt.label)} pace, drafting for the first ${m >= 1000 ? (m / 1000).toFixed(2) + " km" : m + " m"}. Included in the time and watts above.</p>`;
+  }
+  return `<section class="call" aria-live="polite">
+    <div>
+      <div class="when"><span class="label">${esc(title)}</span><span class="num" style="color:var(--muted);font-size:13px">${esc(fmtWhen(ev.time))}</span></div>
+      <div class="verdict ${v}">${word}</div>
+      <p class="reason">${esc(ev.reason)}</p>
+      ${ev.night ? `<p class="nightnote"><strong>After dark.</strong> Roads are often quieter, but use bright front and rear lights and stick to roads you know.</p>` : ""}
+      <div class="safetybox"><div class="safetyhead"><span class="label">Safety</span><span class="spill s${ev.safety.level}">${ev.safety.label}</span></div>
+        <ul>${ev.safety.items.map((it) => `<li class="s${it.s}"><b>${it.k}:</b> ${esc(it.v)}</li>`).join("")}</ul></div>
+      <div class="metrics">
+        <div class="metric"><b class="num">${ev.verdict === "no" && ev.wet ? "–" : signed(-ev.gain, " s")}</b><span>${r.draft > 0 ? "vs riding solo in still, dry 15°C air, lead-out included" : "vs still, dry 15°C air at " + esc(tgt.label) + " pace"}</span></div>
+        <div class="metric"><b class="num">${Math.round(ev.watts)} W</b><span>needed for the ${esc(tgt.label)} (${Math.round(still)} W solo in still air)</span></div>
+        <div class="metric"><b class="num">${signed(kmh(ev.tailAvg), " km/h", 1)}</b><span>wind along the segment, at rider height</span></div>
+        <div class="metric"><b class="num">${compass(ev.from)} ${Math.round(kmh(ev.wind))}<small style="font-size:12px"> km/h</small></b><span>gusts ${Math.round(kmh(ev.gust))} km/h</span></div>
+        <div class="metric"><b class="num">${ev.temp.toFixed(0)}°C</b><span>air density ${ev.rho.toFixed(3)} kg/m³</span></div>
+        <div class="metric"><b class="num">${ev.rain.toFixed(1)} mm</b><span>${ev.prob}% chance of rain${ev.wet ? ", roads wet" : ""}</span></div>
+      </div>
+      ${lead}
+    </div>
+  </section>`;
+}
+
+const CLIMB = ["", "Cat 4", "Cat 3", "Cat 2", "Cat 1", "HC"];
+function profileSVG(seg) {
+  const pr = seg.profile; if (!pr) return "";
+  const W = 640, H = 170, L = 46, Rp = 12, T = 12, B = 28;
+  const lo = Math.min(...pr.a), hi = Math.max(...pr.a);
+  const step = hi - lo > 60 ? 20 : hi - lo > 25 ? 10 : 5;
+  const y0 = Math.floor((lo - step * 0.3) / step) * step, y1 = Math.ceil((hi + step * 0.3) / step) * step;
+  const dMax = pr.d[pr.d.length - 1] || 1;
+  const X = (d) => L + (d / dMax) * (W - L - Rp), Y = (a) => T + (1 - (a - y0) / (y1 - y0)) * (H - T - B);
+  const pts = pr.d.map((d, i) => `${X(d).toFixed(1)},${Y(pr.a[i]).toFixed(1)}`);
+  const ticks = []; for (let v = y0; v <= y1 + 0.01; v += step) ticks.push(v);
+  const yl = ticks.length > 5 ? ticks.filter((_, i) => i % 2 === 0) : ticks;
+  const km = dMax / 1000, xt = [0, km / 2, km];
+  return `<div class="profile"><h4>Elevation${pr.rough ? " (start and finish only)" : ""}</h4>
+    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Elevation profile from ${Math.round(lo)} m to ${Math.round(hi)} m over ${km.toFixed(2)} km">
+      ${yl.map((v) => `<line x1="${L}" x2="${W - Rp}" y1="${Y(v).toFixed(1)}" y2="${Y(v).toFixed(1)}" stroke="var(--line)" stroke-width="1"/><text x="${L - 8}" y="${(Y(v) + 4).toFixed(1)}" font-size="12" text-anchor="end" fill="var(--muted)" font-family="var(--mono)">${v} m</text>`).join("")}
+      ${xt.map((k, i) => `<text x="${X(k * 1000).toFixed(1)}" y="${H - 8}" font-size="12" text-anchor="${i === 0 ? "start" : i === 2 ? "end" : "middle"}" fill="var(--muted)" font-family="var(--mono)">${k.toFixed(k >= 10 ? 0 : 1)} km</text>`).join("")}
+      <path d="M${X(0)},${Y(y0)} L${pts.join(" L")} L${X(dMax)},${Y(y0)} Z" fill="var(--accent)" fill-opacity=".14"/>
+      <polyline points="${pts.join(" ")}" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round"/>
+    </svg></div>`;
+}
+function segmentPanel(seg, ev, tgt) {
+  const stat = (k, v) => `<div><dt>${k}</dt><dd>${v}</dd></div>`;
+  const stats = [
+    stat("Distance", `${(seg.distance / 1000).toFixed(2)} <small>km</small>`),
+    stat("Elevation gain", `${Math.round(seg.elevation_gain || 0)} <small>m</small>`),
+    stat("Average grade", `${(+seg.average_grade).toFixed(1)}<small>%</small>`),
+    seg.maxGrade != null ? stat("Steepest", `${(+seg.maxGrade).toFixed(1)}<small>%</small>`) : "",
+    seg.elevLow != null && seg.elevHigh != null ? stat("Low to high", `${Math.round(seg.elevLow)}–${Math.round(seg.elevHigh)} <small>m</small>`) : "",
+    stat("Direction", `${compass(seg.heading)} <small>${Math.round(seg.heading)}°</small>`),
+    seg.climbCat ? stat("Climb category", CLIMB[seg.climbCat] || "–") : "",
+  ].join("");
+  const t = (label, v) => `<div class="time${tgt.label === label ? " target" : ""}"><span>${label === "PR" ? "Your PR" : label}</span><b>${fmtTime(v)}</b>${tgt.label === label ? "<em>Your target</em>" : ""}</div>`;
+  const to = ev.from + 180;
+  return `<section class="segpanel">
+    <div class="segpanel-head"><h3>The segment</h3><span>Route coloured for ${esc(fmtWhen(ev.time))}</span></div>
+    <div class="segbody">
+      <div class="segmap" id="segmap">
+        ${routeSVG(seg, ev)}
+        <div class="mapwind"><svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="18" fill="var(--sunk)" stroke="var(--line)"/><text x="20" y="9" font-size="7" text-anchor="middle" fill="var(--muted)" font-family="var(--mono)">N</text><g transform="rotate(${to.toFixed(0)} 20 20)"><line x1="20" y1="31" x2="20" y2="12" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"/><path d="M14 16 L20 8 L26 16 Z" fill="var(--accent)"/></g></svg><span>Wind from <b>${compass(ev.from)}</b><br><b>${Math.round(kmh(ev.wind))} km/h</b>, gusts ${Math.round(kmh(ev.gust))}</span></div>
+        <div class="maplegend"><span class="key"><i style="background:var(--map-tail)"></i>tailwind</span><span class="key"><i style="background:var(--map-head)"></i>headwind</span><span class="key"><i style="background:var(--map-flat)"></i>crosswind</span></div>
+      </div>
+      <div>
+        <dl class="stats">${stats}</dl>
+        <div class="times">${t("KOM", seg.kom)}${t("QOM", seg.qom)}${t("PR", seg.pr)}</div>
+      </div>
+    </div>
+    ${profileSVG(seg)}
+  </section>`;
+}
+/* Street map (Leaflet + OpenStreetMap). The drawn route stays underneath and shows if map tiles can't load. */
+const mapHost = document.createElement("div"); mapHost.className = "lmap";
+let lmap = null, routeLayer = null, mapSegId = null;
+const cssVar = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function mountMap(seg, ev) {
+  const key = state.config?.mapKey;
+  const host = $("#segmap"); if (!host || !window.L || !key) return;   // no key: keep the drawn route
+  host.appendChild(mapHost);
+  if (!lmap) {
+    lmap = L.map(mapHost, { scrollWheelZoom: false, zoomSnap: 0.25 });
+    // CARTO basemaps (OpenStreetMap data). Needs a free key, set as CARTO_BASEMAPS_KEY on the server.
+    const tiles = L.tileLayer(`https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png?key=${encodeURIComponent(key)}`, {
+      maxZoom: 20, referrerPolicy: "strict-origin-when-cross-origin",
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>',
+    });
+    tiles.on("tileload", () => mapHost.classList.add("ok"));
+    tiles.addTo(lmap);
+  }
+  lmap.invalidateSize();
+  if (routeLayer) routeLayer.remove();
+  const cond = { wind: ev.wind, windFrom: ev.from };
+  const tail = cssVar("--map-tail"), head = cssVar("--map-head"), flat = cssVar("--map-flat");
+  const layers = [L.polyline(seg.points, { color: "#ffffff", weight: 11, opacity: 0.9 })];
+  seg.pieces.forEach((p) => {
+    const tw = tailwindOn(p, cond);
+    layers.push(L.polyline([p.a, p.b], { color: tw > 0.4 ? tail : tw < -0.4 ? head : flat, weight: 6, lineCap: "round" }));
+  });
+  const ink = "#121820";
+  layers.push(L.circleMarker(seg.points[0], { radius: 7, color: ink, weight: 3, fillColor: "#ffffff", fillOpacity: 1 }).bindTooltip("Start"));
+  layers.push(L.circleMarker(seg.points[seg.points.length - 1], { radius: 7, color: "#ffffff", weight: 2, fillColor: ink, fillOpacity: 1 }).bindTooltip("Finish"));
+  routeLayer = L.layerGroup(layers).addTo(lmap);
+  if (mapSegId !== seg.id) { lmap.fitBounds(L.latLngBounds(seg.points), { padding: [40, 40] }); mapSegId = seg.id; }
+}
+
+function renderMain() {
+  const main = $("#main");
+  const seg = state.segments.find((s) => String(s.id) === String(state.selected));
+  if (!seg) { main.innerHTML = `<div class="panel empty">Pick a segment to see when to go for it.</div>`; return; }
+  const f = state.forecasts[seg.id];
+  const tgt = targetFor(seg);
+  const head = `<div class="seghead">
+      <div><h2>${esc(seg.name)}</h2><div class="where">${esc(seg.city || "")}${seg.sample ? " · example" : ""} · Weather: ${esc((f?.source || sourceFor(seg.lat, seg.lng)).name)}${!seg.sample ? ` · <a href="https://www.strava.com/segments/${esc(seg.id)}" target="_blank" rel="noopener" style="color:var(--link)">Open on Strava</a>` : ""}</div></div>
+    </div>`;
+  if (!f) { main.innerHTML = head + `<div class="panel empty">Loading the forecast…</div>`; return; }
+
+  const r = rider();
+  const { evals } = evaluateAll(seg, f, r, tgt.T);
+  const nowLocal = Date.now() + (f.utc_offset_seconds || 0) * 1000;
+  let nowIdx = f.hourly.time.findIndex((t) => tsOf(t) + 36e5 > nowLocal);
+  if (nowIdx < 0) nowIdx = 0;
+  const pick = state.hourPick != null && evals[state.hourPick] ? state.hourPick : nowIdx;
+  const ev = evals[pick];
+  const safetyFirst = state.settings.safety !== "off";
+  const wins = findWindows(evals, nowIdx, { safetyFirst });
+  if (ev.watts == null) ev.watts = powerForTime(tgt.T, seg, ev.cond, r);
+
+  const winHTML = wins.length ? `<ul class="windows">${wins.map((w) => {
+    const sameHr = w.start.i === w.end.i;
+    const endH = String((new Date(tsOf(w.end.time)).getUTCHours() + 1) % 24).padStart(2, "0") + ":00";
+    return `<li><button data-i="${w.peak.i}">
+      <span class="t">${esc(fmtWhen(w.start.time))}${sameHr ? "" : "–" + endH}</span>
+      <span class="s">${w.peak.verdict === "go" ? "Go" : "Maybe"} · ${compass(w.peak.from)} ${Math.round(kmh(w.peak.wind))} km/h, ${w.peak.temp.toFixed(0)}°C${w.peak.night ? " · after dark" : ""}${isRush(w.peak.time) ? " · rush hour" : ""} <span class="spill s${w.safety}">${SAFETY[w.safety]}</span></span>
+      <span class="g ${w.peak.verdict}">${signed(-w.peak.wxGain, " s")}</span></button></li>`;
+  }).join("")}</ul>` : `<p class="empty">No ${safetyFirst ? "safe " : ""}Go or Maybe window in the next 7 days on this segment. Check back as the forecast updates${safetyFirst ? ", or turn off Safety first to see riskier hours" : ""}.</p>`;
+
+  // 7-day grid: rows = days, columns = hours 05–21
+  const HOURS = Array.from({ length: 17 }, (_, k) => k + 5);
+  const byDay = new Map();
+  evals.forEach((e) => { const ts = tsOf(e.time); const day = ts - (ts % 864e5); if (!byDay.has(day)) byDay.set(day, {}); byDay.get(day)[new Date(ts).getUTCHours()] = e; });
+  const todayStart = nowLocal - (nowLocal % 864e5);
+  const rows = [...byDay.entries()].filter(([d]) => d >= todayStart).slice(0, 7).map(([d, hrs]) => `<tr><th class="day" scope="row">${d === todayStart ? "Today" : fmtDay(d)}</th>${HOURS.map((hh) => {
+    const e = hrs[hh]; if (!e) return `<td></td>`;
+    const strong = e.verdict === "go" && e.gainPct >= 4 ? " strong" : "";
+    const txt = e.wet ? "wet" : signed(-e.wxGain, "", 0);
+    const rush = isRush(e.time) ? " rush" : "";
+    return `<td><button class="cell ${e.verdict}${e.night ? " night" : ""}${strong}${e.i < nowIdx ? " past" : ""}${rush}${e.safety.level === 2 && !e.wet ? " risk" : ""}" data-i="${e.i}" aria-pressed="${e.i === pick}" title="${esc(fmtWhen(e.time))}: ${esc(e.reason)}. Safety: ${e.safety.label}">${txt}</button></td>`;
+  }).join("")}</tr>`).join("");
+
+  main.innerHTML = head + `
+    <div class="callrow">
+      ${callCard(seg, ev, tgt, pick === nowIdx ? "Right now" : "Selected hour")}
+      <section class="best">
+        <h3>Best windows, next 7 days</h3>
+        ${winHTML}
+        ${pick !== nowIdx ? `<button class="btn small" id="backNow" style="align-self:flex-start">Back to now</button>` : ""}
+      </section>
+    </div>
+    ${pacingHTML(seg, ev, tgt)}
+    ${segmentPanel(seg, ev, tgt)}
+    <section class="gridpanel">
+      <div class="gridhead"><h3>Hour by hour</h3>
+        <div class="legend"><span><i class="sw" style="background:var(--go)"></i>Go</span><span><i class="sw" style="background:var(--maybe-soft)"></i>Maybe</span><span><i class="sw" style="background:var(--no-soft)"></i>No</span><span><i class="sw" style="background:var(--night-bg)"></i>After dark</span><span><i class="dot"></i>Rush hour</span><span><i class="tri"></i>Safety risk</span><span>Numbers: seconds the weather gives or takes</span></div>
+      </div>
+      <div class="scroller"><table class="heat"><thead><tr><th></th>${HOURS.map((h) => `<th>${String(h).padStart(2, "0")}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table></div>
+      <p class="source">${sourceHTML(f, seg)}</p>
+    </section>
+    <details class="method"><summary>How the call is made</summary>
+      <p>The route is split into short pieces, each with its own compass heading. For every forecast hour, the 10 m wind is scaled to rider height (×${WIND_AT_RIDER}) and resolved along each piece, so a twisting climb gets partial credit for a crosswind and a straight drag gets the full push.</p>
+      <p>A rider of your weight and position is set to ride the ${esc(tgt.label)} time exactly in still, dry air at 15°C. The same power is then applied to the forecast hour (wind, air density from temperature, pressure and humidity, and higher rolling resistance on wet roads) to get the seconds gained or lost, and the watts the ${esc(tgt.label)} would need that hour.</p>
+      <p><strong>Go</strong>: at least 2% faster than still air. <strong>Maybe</strong>: 0.6–2%. Rain now, wet roads from the last 3 hours, or gusts over 55 km/h rule an hour out; a 50%+ rain chance knocks it down a level. Steep climbs gain less from wind than flat drags because you're going slower and gravity dominates.</p>
+      <p><strong>Lead-out</strong>: drafting one rider cuts your drag by about 30%, a train of two or more by about 40%, for the share of the segment you choose. The Go / Maybe call and the grid show what the weather is worth; the lead-out saving is shown separately on the call card and included in its time and watts.</p>
+      <p><strong>After dark</strong>: hours before sunrise and after sunset are scored on the weather like any other, shown on dark grey squares. Quiet roads can make them the safer choice, but ride with good lights.</p>
+      <p><strong>Safety</strong>: each hour is rated Safe, Take care or Risky from expected traffic (by time of day and weekday), daylight, road surface (wet roads, ice risk at 2°C or below) and gusts, plus steep descents on the segment. Traffic is an estimate from typical patterns, not live data. With Safety first on, Risky hours never appear in your best windows or alerts.</p>
+      <p><strong>Pacing plan</strong>: the segment is split into a few sections effort is shared out differently from a steady ride: a little more on climbs and into headwinds, where extra watts buy the most time, and a little less with a tailwind or downhill. The overall strain stays the same as riding steadily (measured the way Normalized Power is), and changes are kept within −15% to +20% of the average.</p>
+      <p><strong>FTP</strong>: taken from your Strava profile when it's there, otherwise estimated from your segment PRs and recent rides with a power meter, using a standard power-duration curve. It's a rough guide; type your own for better results.</p>
+      <p><strong>Rush hour</strong>: weekday hours 07:00–09:00 and 16:00–19:00 are dotted on the grid. Roads are busiest then, so pick another window if you can.</p>
+    </details>`;
+
+  main.querySelectorAll("[data-i]").forEach((b) => (b.onclick = () => { state.hourPick = +b.dataset.i; renderMain(); }));
+  try { mountMap(seg, ev); } catch (e) { console.warn("Map unavailable", e); }
+  const back = $("#backNow"); if (back) back.onclick = () => { state.hourPick = null; renderMain(); };
+}
+
+/* ---------- Pacing (view) ---------- */
+function fmtKm(m) { return (m / 1000).toFixed(m >= 10000 ? 0 : 1); }
+function pacingHTML(seg, ev, tgt) {
+  const r = rider();
+  const plan = pacingPlan(seg, ev.cond, r, ev.watts);
+  const ftp = ftpEffective();
+  const rows = plan.sections.map((sx) => {
+    const pct = (sx.P / plan.Pavg - 1) * 100;
+    const w = Math.max(2, Math.min(100, ((sx.P / plan.Pavg) - 0.8) / 0.4 * 100));
+    const wind = Math.abs(kmh(sx.tail)) < 2 ? "light crosswind" : `${kmh(sx.tail) > 0 ? "tailwind" : "headwind"} ${Math.round(Math.abs(kmh(sx.tail)))} km/h`;
+    return `<div class="pacerow"><div class="where"><b>${fmtKm(sx.from)}–${fmtKm(sx.to)} km</b><span>${sx.grade >= 0 ? "+" : "−"}${Math.abs(sx.grade).toFixed(1)}% · ${wind}</span></div>
+      <div class="bar" aria-hidden="true"><i style="width:${w.toFixed(0)}%"></i><u></u></div>
+      <div class="pw">${Math.round(sx.P)} W<small>${signed(pct, "%")}</small></div><div class="pt">${fmtTime(sx.t)}</div></div>`;
+  }).join("");
+  let feas = "";
+  if (ftp) {
+    const can = sustainable(plan.Tplan, ftp), np = Math.pow(plan.sections.reduce((a, sx) => a + Math.pow(sx.P, 4) * sx.t, 0) / plan.Tplan, 0.25), ratio = np / can;
+    const lvl = ratio <= 1 ? 0 : ratio <= 1.08 ? 1 : 2;
+    feas = `<p class="feas"><span class="spill s${lvl}">${["Within reach", "Right at your limit", "Above your limit"][lvl]}</span> About ${Math.round(ratio * 100)}% of the ${Math.round(can)} W your FTP of ${Math.round(ftp)} W suggests you can hold for ${fmtTime(plan.Tplan)}.</p>`;
+  }
+  return `<section class="pacing">
+    <div class="pacehead"><h3>Pacing plan</h3><span>For ${esc(fmtWhen(ev.time))}</span></div>
+    <p class="pacesum">To match the ${esc(tgt.label)} you need <b>${Math.round(plan.Pavg)} W</b> at a steady effort (${fmtTime(plan.Teven)}). ${plan.saved >= 1 ? `Varying it like this, for the same overall strain, gets you there in <b>${fmtTime(plan.Tplan)}</b>, about <b>${plan.saved.toFixed(0)} s faster</b>.` : `Conditions are even along this segment, so a steady effort is close to ideal: use the targets below as a guide and save a little for the final stretch.`}</p>
+    <div class="pacetable"><div class="pacerow headrow"><span>Section</span><span class="bh">Effort vs average</span><span class="pw">Target</span><span class="pt">Time</span></div>${rows}</div>
+    ${feas}
+  </section>`;
+}
+
+/* ---------- FTP ---------- */
+function ftpEffective() { return +state.settings.ftp || state.ftpAuto?.value || null; }
+function computeFtpAuto() {
+  if (state.athleteFtp) { state.ftpAuto = { value: state.athleteFtp, source: "your Strava profile" }; return; }
+  const r = soloRider(); let best = null, n = 0;
+  for (const sg of state.segments) {
+    if (!sg.pr || sg.pr < 120 || !sg.pieces?.length) continue;
+    const P = powerForTime(sg.pr, sg, NEUTRAL, r), c = ftpFromEffort(P, sg.pr); n++;
+    if (!best || c > best) best = c;
+  }
+  const act = store.get("tw.actFtp", null);
+  if (act && (!best || act > best)) { state.ftpAuto = { value: Math.round(act), source: "your recent rides with power" }; return; }
+  state.ftpAuto = best ? { value: Math.round(best), source: `your PRs on ${n} segment${n === 1 ? "" : "s"}` } : null;
+}
+function renderFtpHint() {
+  const el = $("#ftpHint"); const inp = $("#ftp");
+  inp.placeholder = state.ftpAuto ? `Auto: ${state.ftpAuto.value}` : "Auto";
+  el.textContent = +state.settings.ftp ? `Using your FTP of ${+state.settings.ftp} W.`
+    : state.ftpAuto ? `Estimated ${state.ftpAuto.value} W from ${state.ftpAuto.source}. Type your own to override.`
+    : "Add your FTP to see which segments are within reach.";
+}
+async function loadAthleteFtp() {
+  const cached = store.get("tw.athlete", null);
+  if (cached && Date.now() - cached.at < 864e5) { state.athleteFtp = cached.ftp || null; return; }
+  try { const me = await strava("/athlete"); state.athleteFtp = me.ftp || null; store.set("tw.athlete", { at: Date.now(), ftp: me.ftp || null }); } catch {}
+}
+
+/* ---------- Segments near me ---------- */
+const RIDE_TYPES = new Set(["Ride", "GravelRide", "MountainBikeRide", "EBikeRide"]);
+function getPosition() {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) return reject(new Error("This browser can't share your location."));
+    navigator.geolocation.getCurrentPosition((p) => resolve([p.coords.latitude, p.coords.longitude]),
+      (e) => reject(new Error(e.code === 1 ? "Location permission was declined. You can allow it in your browser's site settings." : "Couldn't get your location. Try again outdoors or on Wi-Fi.")),
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 600000 });
+  });
+}
+async function ridesNear(here, radius) {
+  const acts = await strava("/athlete/activities?per_page=50");
+  const near = acts.filter((a) => RIDE_TYPES.has(a.sport_type || a.type) && a.start_latlng?.length === 2 && haversine(here, a.start_latlng) <= (radius + 25) * 1000).slice(0, 10);
+  // Best effort from rides with a power meter feeds the FTP estimate.
+  let bestAct = null;
+  for (const a of acts) if (a.device_watts && a.weighted_average_watts && a.moving_time >= 1200) { const c = ftpFromEffort(a.weighted_average_watts, a.moving_time); if (!bestAct || c > bestAct) bestAct = c; }
+  if (bestAct) store.set("tw.actFtp", bestAct);
+  const segs = new Map();
+  for (const a of near) {
+    let efforts = store.get("tw.act." + a.id, null);
+    if (!efforts || Date.now() - efforts.at > 7 * 864e5) {
+      const d = await strava(`/activities/${a.id}`);
+      efforts = { at: Date.now(), list: (d.segment_efforts || []).map((e) => e.segment).filter(Boolean).map((sg) => ({ id: sg.id, name: sg.name, distance: sg.distance, average_grade: sg.average_grade, start_latlng: sg.start_latlng, end_latlng: sg.end_latlng, city: sg.city, state: sg.state, activity_type: sg.activity_type })) };
+      store.set("tw.act." + a.id, efforts);
+    }
+    for (const sg of efforts.list) if (sg.activity_type !== "Run" && sg.start_latlng?.length === 2) segs.set(sg.id, sg);
+  }
+  return [...segs.values()].map((sg) => ({ sg, away: haversine(here, sg.start_latlng) })).filter((x) => x.away <= radius * 1000).sort((a, b) => a.away - b.away).slice(0, 12);
+}
+async function findNear() {
+  const status = $("#nearStatus"), radius = +$("#nearRadius").value;
+  state.near = null; $("#nearList").innerHTML = "";
+  if (state.demo) {
+    const here = [51.5074, -0.1278];
+    state.near = { demo: true, items: state.segments.filter((sg) => sg.sample).map((seg) => ({ seg, away: haversine(here, seg.points[0]) })).sort((a, b) => a.away - b.away) };
+    status.textContent = "Demo: showing the example segments, measured from central London. Connect Strava to search your own rides.";
+    renderNear(); return;
+  }
+  if (!(state.tokens?.scope || "").includes("activity:read")) {
+    status.innerHTML = `KOMFIRMED needs permission to read your rides to find segments you've ridden. <button class="btn small" type="button" id="grantRides">Allow on Strava</button>`;
+    $("#grantRides").onclick = () => connect("read,activity:read");
+    return;
+  }
+  try {
+    status.textContent = "Getting your location…";
+    const here = await getPosition();
+    status.textContent = "Looking through your recent rides…";
+    const found = await ridesNear(here, radius);
+    if (!found.length) { status.textContent = `No segments from your last 50 rides within ${radius} km. Try a bigger radius.`; return; }
+    status.textContent = `Checking KOM and QOM times for ${found.length} segments…`;
+    const items = [];
+    for (const { sg, away } of found) {
+      try { items.push({ seg: normaliseSegment(await segmentDetail(sg.id)), away }); }
+      catch { items.push({ seg: normaliseSegment(Object.assign({}, sg, { distance: sg.distance })), away }); }
+    }
+    computeFtpAuto(); renderFtpHint();
+    state.near = { items };
+    status.textContent = `${items.length} segments within ${radius} km, easiest to win first.`;
+    renderNear();
+  } catch (e) { status.textContent = e.message; }
+}
+function renderNear() {
+  const ftp = ftpEffective(), r = soloRider(), ul = $("#nearList");
+  if (!state.near) { ul.innerHTML = ""; return; }
+  const rows = state.near.items.map(({ seg, away }) => {
+    const tgt = targetFor(seg);
+    const ach = ftp && tgt.label !== "est." ? achievability(seg, tgt.T, ftp, r) : null;
+    return { seg, away, tgt, ach };
+  }).sort((a, b) => (a.ach ? a.ach.ratio : 9) - (b.ach ? b.ach.ratio : 9) || a.away - b.away);
+  ul.innerHTML = rows.map(({ seg, away, tgt, ach }) => `<li>
+      <span class="n">${esc(seg.name)}</span>
+      <span class="m">${(away / 1000).toFixed(1)} km away · ${(seg.distance / 1000).toFixed(2)} km · ${(+seg.average_grade).toFixed(1)}% · ${esc(tgt.label)} ${fmtTime(tgt.T)}</span>
+      ${ach ? `<span class="spill s${Math.min(2, ach.level)}" title="Needs about ${Math.round(ach.need)} W in still air; you can hold about ${Math.round(ach.can)} W for that long">${ach.label} · ${Math.round(ach.need)} W</span>` : `<span class="m">Add your FTP to rate this</span>`}
+      <button class="btn small" type="button" data-near="${esc(seg.id)}">${state.segments.some((x) => String(x.id) === String(seg.id)) ? "View" : "Add"}</button></li>`).join("");
+  ul.querySelectorAll("[data-near]").forEach((b) => (b.onclick = () => {
+    const item = state.near.items.find((x) => String(x.seg.id) === b.dataset.near); if (!item) return;
+    if (!state.segments.some((x) => String(x.id) === String(item.seg.id))) {
+      state.segments.unshift(item.seg);
+      if (!item.seg.sample) { const extra = store.get("tw.extra", []); if (!extra.includes(String(item.seg.id))) { extra.push(String(item.seg.id)); store.set("tw.extra", extra); } }
+      renderAlerts();
+    }
+    select(item.seg.id);
+  }));
+}
+$("#nearBtn").onclick = findNear;
+
+/* ---------- Window alerts ---------- */
+function downsamplePts(arr, max) { if (arr.length <= max) return arr; const out = []; for (let k = 0; k < max; k++) out.push(arr[Math.round(k * (arr.length - 1) / (max - 1))]); return out; }
+function renderAlerts() {
+  const box = $("#alertSegs"), sel = new Set(store.get("tw.alertSel", state.segments.slice(0, 5).map((x) => String(x.id))));
+  box.innerHTML = state.segments.length ? state.segments.slice(0, 30).map((sg) => `<label class="chk"><input type="checkbox" value="${esc(sg.id)}"${sel.has(String(sg.id)) ? " checked" : ""}> ${esc(sg.name)}</label>`).join("") : `<span class="hint">Your segments will appear here.</span>`;
+  const sync = () => {
+    const boxes = [...box.querySelectorAll("input")], on = boxes.filter((b) => b.checked);
+    boxes.forEach((b) => (b.disabled = !b.checked && on.length >= 5));
+    store.set("tw.alertSel", on.map((b) => b.value));
+  };
+  box.onchange = sync; sync();
+  $("#alertSafe").checked = state.settings.safety !== "off";
+  const on = !!state.config?.alerts;
+  $("#alertBtn").disabled = !on;
+  if (!on) $("#alertStatus").textContent = state.demo ? "Alerts work once the app is deployed with email set up. This demo can't send emails." : "Alerts aren't switched on for this site yet.";
+}
+$("#alertForm").onsubmit = async (e) => {
+  e.preventDefault();
+  const status = $("#alertStatus"), email = $("#alertEmail").value.trim();
+  const ids = [...$("#alertSegs").querySelectorAll("input:checked")].map((b) => b.value);
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { status.textContent = "Enter a valid email address."; return; }
+  if (!ids.length) { status.textContent = "Pick at least one segment."; return; }
+  if (!$("#alertConsent").checked) { status.textContent = "Tick the box to agree to the emails."; return; }
+  $("#alertBtn").disabled = true; status.textContent = "Setting up your alerts…";
+  try {
+    const segs = [];
+    for (const id of ids) {
+      let sg = state.segments.find((x) => String(x.id) === id);
+      if (sg && !sg.detailed && !sg.sample) sg = normaliseSegment(await segmentDetail(sg.id));
+      if (!sg) continue;
+      const tgt = targetFor(sg);
+      segs.push({ id: sg.id, name: sg.name, distance: sg.distance, average_grade: sg.average_grade,
+        points: downsamplePts(sg.points, 80).map(([a, b]) => [+a.toFixed(5), +b.toFixed(5)]),
+        profile: sg.profile && !sg.profile.rough ? (() => { const n = sg.profile.d.length, k = Math.min(60, n), idx = Array.from({ length: k }, (_, i) => Math.round(i * (n - 1) / (k - 1))); return { d: idx.map((i) => Math.round(sg.profile.d[i])), a: idx.map((i) => +(+sg.profile.a[i]).toFixed(1)) }; })() : null,
+        T: Math.round(tgt.T), label: tgt.label });
+    }
+    const r = rider();
+    await api("/api/alerts/subscribe", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({
+      email, segments: segs, rider: { mass: r.mass, cda: r.cda }, prefs: { safetyFirst: $("#alertSafe").checked, includeMaybe: $("#alertMaybe").checked } }) });
+    status.textContent = `Nearly done: check ${email} and tap the link to confirm. Each email has an unsubscribe link.`;
+  } catch (err) { status.textContent = err.message; }
+  finally { $("#alertBtn").disabled = !state.config?.alerts; }
+};
+
+/* ---------- Actions ---------- */
+async function ensureForecast(seg) {
+  if (state.forecasts[seg.id]) return;
+  try { state.forecasts[seg.id] = await fetchForecast(seg.lat, seg.lng); state.forecastLive = true; }
+  catch { state.forecasts[seg.id] = sampleForecast(seg.lat, seg.lng); state.forecastLive = false; renderStatus(); }
+}
+async function select(id) {
+  state.selected = id; state.hourPick = null; store.set("tw.selected", id);
+  renderList(); renderMain();
+  let seg = state.segments.find((s) => String(s.id) === String(id));
+  if (!seg) return;
+  try {
+    if (!seg.detailed && !seg.sample) {
+      const d = await segmentDetail(seg.id);
+      const full = normaliseSegment(d);
+      state.segments = state.segments.map((s) => (String(s.id) === String(id) ? full : s)); seg = full;
+    }
+    await ensureForecast(seg);
+  } catch (e) { state.error = e.message; renderStatus(); }
+  if (String(state.selected) === String(id)) { renderList(); renderMain(); }
+}
+$("#addForm").onsubmit = async (e) => {
+  e.preventDefault();
+  const v = $("#addInput").value.trim();
+  const m = v.match(/segments\/(\d+)/) || v.match(/^(\d+)$/);
+  if (!m) { $("#addHint").textContent = "That doesn't look like a segment link. It should contain /segments/ followed by a number."; return; }
+  $("#addHint").textContent = "Loading segment…";
+  try {
+    const d = await segmentDetail(m[1]);
+    const seg = normaliseSegment(d);
+    if (!state.segments.some((s) => String(s.id) === String(seg.id))) state.segments.unshift(seg);
+    const extra = store.get("tw.extra", []); if (!extra.includes(String(seg.id))) { extra.push(String(seg.id)); store.set("tw.extra", extra); }
+    $("#addInput").value = ""; $("#addHint").textContent = "";
+    select(seg.id);
+  } catch (err) { $("#addHint").textContent = err.message; }
+};
+const SETTING_IDS = ["target", "weight", "bike", "cda", "leadout", "leadpct", "ftp", "safety"];
+for (const id of SETTING_IDS) {
+  const el = $("#" + id);
+  el.value = state.settings[id];
+  el.addEventListener("change", () => {
+    state.settings[id] = el.value; store.set("tw.settings", state.settings);
+    if (id === "weight" || id === "bike" || id === "cda") computeFtpAuto();
+    renderFtpHint(); renderMain(); if (state.near) renderNear();
+  });
+}
+
+async function init() {
+  state.error = state.error || "";
+  if (!state.config) await loadConfig();
+  await handleRedirect();
+  SETTING_IDS.forEach((id) => ($("#" + id).value = state.settings[id]));
+  state.demo = !state.tokens;
+  renderStatus();
+  if (state.demo) {
+    state.segments = SAMPLE_SEGMENTS.map(normaliseSegment);
+  } else {
+    try {
+      const starred = await strava("/segments/starred?per_page=100");
+      state.segments = starred.filter((s) => s.activity_type !== "Run").map((s) => normaliseSegment(state.details[s.id]?.d || s));
+      for (const id of store.get("tw.extra", [])) {
+        if (!state.segments.some((s) => String(s.id) === id) && state.details[id]) state.segments.push(normaliseSegment(state.details[id].d));
+      }
+    } catch (e) { state.error = e.message; state.segments = []; }
+    await loadAthleteFtp();
+    renderStatus();
+  }
+  computeFtpAuto(); renderFtpHint();
+  renderList(); renderAlerts();
+  const remembered = store.get("tw.selected", null);
+  const first = state.segments.find((s) => String(s.id) === String(remembered)) || state.segments[0];
+  if (first) select(first.id); else renderMain();
+}
+init();
+})();
+</script>
+
+</body>
+</html>
